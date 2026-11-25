@@ -5,7 +5,7 @@
 | 항목 | 내용 |
 |------|------|
 | **프로젝트명** | IT 뉴스레터 (가칭) |
-| **문서 버전** | v1.0 |
+| **문서 버전** | v1.1 |
 | **작성일** | 2026-11-25 |
 | **작성자** | Claude (초안 작성) / 임지영 (프로젝트 담당) |
 | **승인자** | 임지영 / 프로젝트 담당 |
@@ -46,6 +46,7 @@
 |------|------|--------|-----------|
 | v0.1 | 2026-11-25 | Claude | 초안 작성 |
 | v1.0 | 2026-11-25 | Claude | G2 승인 |
+| v1.1 | 2026-11-25 | Claude | G3 승인에 따른 변경: 위키백과 연동을 검색·요약 API 2개에서 본문 추출 API 1개로 (상세 설계 부록 E 제안 2) |
 
 ---
 
@@ -124,8 +125,7 @@
 | OUT-05 | GitHub 저장소 검색 | GET | `https://api.github.com/search/repositories` | 1 | FR-001 |
 | OUT-06 | GitHub README | GET | `https://api.github.com/repos/<owner>/<repo>/readme` | 최대 10 | FR-001 |
 | OUT-07 | arXiv 검색 | GET | `https://export.arxiv.org/api/query` | 1 | FR-001 |
-| OUT-08 | 위키백과 검색 | GET | `https://<lang>.wikipedia.org/w/api.php` (`action=query&list=search`) | 후보당 1~2 | FR-006 |
-| OUT-09 | 위키백과 요약 | GET | `https://<lang>.wikipedia.org/api/rest_v1/page/summary/<title>` | 후보당 1 | FR-006 |
+| OUT-08 | 위키백과 본문 추출 | GET | `https://<lang>.wikipedia.org/w/api.php` (`action=query&prop=extracts\|info\|pageprops&explaintext=1&redirects=1`) | 후보당 1~2 (ko, 없으면 en) | FR-006 |
 | OUT-10 | Claude 메시지 | POST (SDK) | Anthropic Messages API | 분류 1~2, 요약 최대 12, 공부 2 | FR-003·005·006 |
 | OUT-11 | Cloudflare Pages 배포 | wrangler | `pages deploy site` | 1 | FR-008 |
 
@@ -220,20 +220,19 @@
 | score | 없음 | 0 |
 | source_text | `<title>` + `<summary>` (초록) | 그대로 |
 
-### 5.5 OUT-08~09 위키백과
+### 5.5 OUT-08 위키백과 (v1.1 변경)
 
 | 항목 | 내용 |
 |------|------|
-| 이용 조건 | 연락처가 담긴 User-Agent 필수(없으면 403), 요청은 직렬로. 본문은 CC BY-SA 4.0 |
-| 순서 | ① 한국어 위키백과에서 검색(OUT-08)해 가장 맞는 문서 제목을 찾는다 → ② 요약(OUT-09)을 가져온다 → ③ 없으면 영어 위키백과로 ①② 반복 |
-| 확인 필요 | 검색 API(`action=query&list=search`)의 응답 형식은 03에서 실제 호출로 확인한다. 요약 API는 조사 때 응답을 확인했다 |
+| 이용 조건 | 연락처가 담긴 User-Agent 필수(없으면 403), 요청은 직렬로, `maxlag=5`. 본문은 CC BY-SA 4.0 |
+| 요청 | `action=query`, `prop=extracts\|info\|pageprops`, `explaintext=1`, `inprop=url`, `redirects=1`, `titles=<제목>`, `format=json`, `formatversion=2`, `maxlag=5` |
+| 순서 | Claude가 준 후보의 한국어 제목으로 ko 위키백과 요청 → 쓸 수 없으면 영어 제목으로 en 위키백과 요청 |
+| 변경 이유 (CHK-03) | 검색 API 첫 결과가 엉뚱한 문서를 고르고("카나리 배포" → "패치 (컴퓨팅)"), 요약 API 본문은 200~500자로 600자 이상 공부 글의 근거가 되지 못했다. 본문 추출은 1,500~6,000자와 리다이렉트 정보를 준다 |
 
-| 사용 필드 (요약 API) | 용도 |
-|-----------|------|
-| `title` | `study.wikipedia.title` |
-| `extract` | 공부 글 생성의 근거 텍스트 (**저장 금지**) |
-| `content_urls.desktop.page` | `study.wikipedia.url`, `references[0].url` |
-| `type` | `disambiguation`(동음이의 문서)이면 사용하지 않고 다음 후보로 |
+| 판정 | 조건 | 처리 |
+|------|------|------|
+| 사용 | 문서가 있고, 리다이렉트가 없거나 조각(`tofragment`) 없는 리다이렉트이고, 동음이의 문서가 아니고, 본문 600자 이상 | `title`→`study.wikipedia.title`, `fullurl`→`study.wikipedia.url`·`references[0].url`, `extract`→공부 글 근거(**저장 금지**) |
+| 거부 | `missing`, 조각 리다이렉트(예: "Canary release" → "Feature toggle#Canary release"), `pageprops.disambiguation`, 본문 600자 미만 | 다음 언어 또는 다음 후보 |
 
 ### 5.6 OUT-10 Claude
 
@@ -330,7 +329,7 @@
 | HN 외부 원문 (각 사이트) | 1초 | 사이트당 수 건 | BP-SRC-003 |
 | api.github.com | 2초 | 11 | 검색 분당 30회 |
 | export.arxiv.org | 3초 | 1 | arXiv 약관 |
-| *.wikipedia.org | 1초 | 6 | 위키미디어 예의 (직렬) |
+| *.wikipedia.org | 1초 | 6 (후보 3개 × ko·en) | 위키미디어 예의 (직렬), `maxlag=5` |
 | Anthropic API | SDK 기본 | 약 16 | 계정 한도 |
 
 ### 7.3 한도 초과 응답
@@ -362,6 +361,7 @@
 | 날짜 | 대상 | 변경 | 사유 |
 |------|------|------|------|
 | 2026-11-25 | GitHub | Trending 페이지 → 공식 검색 API | GitHub 이용 정책 (SRS ISSUE-01) |
+| 2026-11-25 | 위키백과 | 검색·요약 API → 본문 추출 API | 검색 정확도, 근거 길이 (CHK-03) |
 
 ---
 
@@ -371,11 +371,11 @@
 
 | 항목 | 내용 |
 |------|------|
-| CHK-01 | GitHub 검색의 `created:`·`stars:` 한정자 동작과 결과 품질 |
-| CHK-02 | arXiv API 주소·매개변수·응답 형식 |
-| CHK-03 | 위키백과 검색 API 응답 형식과 동음이의 문서 처리 |
-| CHK-04 | HN 외부 원문 페이지에서 본문 텍스트를 뽑는 방법(표준 라이브러리 HTML 파서)의 품질 |
-| CHK-05 | Claude 구조화 출력 스키마와 SDK 버전 |
+| CHK-01 | 확인 완료: 동작함. 결과 품질 문제로 BP-RANK-004 보강 (정책서 v1.2) |
+| CHK-02 | 확인 완료: 정상. 링크는 https 초록 페이지로 변환 |
+| CHK-03 | 확인 완료 (상세 설계서 부록 D): 검색 대신 본문 추출 API로 변경 (v1.1). 동음이의 표시는 04에서 테스트 |
+| CHK-04 | 확인 완료: 15건 중 13건 추출 (상세 설계서 5.4) |
+| CHK-05 | 공식 SDK 자료로 확인. 실제 호출은 04 첫 통합 실행 |
 
 ### B. 참고 자료
 
