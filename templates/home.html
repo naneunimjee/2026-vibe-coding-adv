@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% from "_macros.html" import news, badge, chevron, study_points %}
+{% block title %}제{{ issue.number }}호 · {{ issue.date | date_ko }}{% endblock %}
+{% block description %}{{ issue.headline }}. {{ issue.summary }}{% endblock %}
+{% block main %}
+<main class="nl-container nl-main">
+  <section class="nl-hero">
+    <span class="nl-hero__eyebrow"><span class="nl-num">제{{ issue.number }}호</span> · {{ issue.date | date_ko }}</span>
+    <h1 class="nl-hero__title">{{ issue.headline | highlight(issue.highlight) }}</h1>
+    <p class="nl-hero__desc">{{ issue.summary }}</p>
+    <ul class="nl-hero__stats">
+      <li class="nl-hero__stat"><strong>{{ issue["items"] | length }}건</strong><span>오늘의 소식</span></li>
+      <li class="nl-hero__stat"><strong>{{ issue["items"] | map(attribute="source") | unique | list | length }}곳</strong><span>수집한 출처</span></li>
+      <li class="nl-hero__stat"><strong>{{ issue.read_minutes }}분</strong><span>다 읽는 시간</span></li>
+    </ul>
+  </section>
+
+  <div class="nl-grid">
+    <div class="nl-gap">
+      <article class="nl-top">
+        <span class="nl-top__num">01</span>
+        <div class="nl-top__body">
+          <div class="nl-news__meta">{{ badge(top.topic, "brand" if top.section == "trend" else "neutral") }}<span>{{ top.source }} · {{ top.published_at | time_hm }} · {{ top.reactions }}</span></div>
+          <h2 class="nl-top__title">{{ top.title }}</h2>
+          <p class="nl-top__summary">{{ top.summary }}</p>
+          <div class="nl-top__foot">
+            <a class="nl-news__link" href="{{ top.url }}" target="_blank" rel="noopener">원문 보기{{ chevron() }}</a>
+            <button class="nl-btn nl-btn--s nl-btn--secondary" type="button" data-share>공유하기</button>
+          </div>
+        </div>
+      </article>
+
+      {% for section_id, label, url in [("trend", "IT 트렌드", "/trends/"), ("issue", "IT 이슈", "/issues/")] %}
+      {% set rows = rest | selectattr("section", "equalto", section_id) | list %}
+      {% if rows %}
+      <section class="nl-card">
+        <div class="nl-section-header"><h2 class="nl-section-header__title">{{ label }}</h2>{% if is_latest %}<a class="nl-section-header__action" href="{{ url }}">전체보기</a>{% endif %}</div>
+        {% for item in rows %}{{ news(item, show_badge=false) }}{% endfor %}
+      </section>
+      {% endif %}
+      {% endfor %}
+    </div>
+
+    <aside class="nl-aside">
+      <section class="nl-study">
+        <span class="nl-study__eyebrow">오늘의 공부</span>
+        <h3 class="nl-study__title">{{ issue.study.title }}</h3>
+        <p class="nl-study__body">{{ issue.study.summary }}</p>
+        {{ study_points(issue.study.points) }}
+        <a class="nl-btn nl-btn--l nl-btn--primary nl-btn--block" href="/study/{{ issue.study.slug }}/">자세히 읽기</a>
+      </section>
+      <section class="nl-card">
+        <div class="nl-section-header"><h2 class="nl-section-header__title">많이 이야기된 소식</h2></div>
+        <ol class="nl-rank">
+          {%- for item in ranked %}
+          <li><span class="nl-rank__n">{{ loop.index }}</span><div><a class="nl-rank__title" href="{{ item.url }}" target="_blank" rel="noopener">{{ item.title }}</a><span class="nl-rank__meta">{{ item.source }} · {{ item.reactions }}</span></div></li>
+          {%- endfor %}
+        </ol>
+      </section>
+    </aside>
+  </div>
+</main>
+{% include "_toast.html" %}
+{% endblock %}
+{% block scripts %}
+<script>
+  document.querySelectorAll('[data-share]').forEach(function (b) {
+    b.addEventListener('click', function () { navigator.clipboard.writeText(location.href).then(function () { showToast('링크를 복사했어요'); }); });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,106 @@
+{
+  "number": 128,
+  "date": "2026-11-25",
+  "headline": "오늘은 오픈소스 LLM 소식이 가장 많았어요",
+  "highlight": "오픈소스 LLM",
+  "summary": "트렌드 4건, 이슈 2건, 오늘의 공부 1개를 골랐어요. 모든 요약에는 원문 링크가 있어요.",
+  "read_minutes": 6,
+  "items": [
+    {
+      "section": "trend",
+      "topic": "AI",
+      "source": "GeekNews",
+      "published_at": "2026-11-25T05:10:00+09:00",
+      "title": "오픈소스 LLM, 사내 서버에서 돌리기 쉬워졌어요",
+      "summary": "새 버전은 양자화된 모델을 기본으로 제공해요. 원문은 GPU 한 장으로 추론 서버를 띄우는 과정과 필요한 메모리를 단계별로 설명해요.",
+      "url": "https://example.com/sample/open-llm-server",
+      "reactions": "댓글 214개",
+      "score": 214
+    },
+    {
+      "section": "trend",
+      "topic": "개발 도구",
+      "source": "GitHub Trending",
+      "published_at": "2026-11-25T02:30:00+09:00",
+      "title": "타입스크립트로 다시 쓴 빌드 도구가 10배 빨라졌어요",
+      "summary": "핵심 모듈을 병렬로 처리하도록 바꿨어요. 원문은 기존 설정 파일을 그대로 쓸 수 있는지와 바뀐 옵션을 정리해요.",
+      "url": "https://example.com/sample/fast-build-tool",
+      "reactions": "스타 3,120개",
+      "score": 180
+    },
+    {
+      "section": "trend",
+      "topic": "AI",
+      "source": "arXiv",
+      "published_at": "2026-11-24T23:40:00+09:00",
+      "title": "작은 모델로 긴 문서를 요약하는 방법을 다룬 논문이 나왔어요",
+      "summary": "문서를 나눠 요약한 뒤 다시 합치는 방식을 비교했어요. 실험은 영어 데이터셋 3개로 진행됐어요.",
+      "url": "https://example.com/sample/long-doc-summary",
+      "reactions": "인용 18회",
+      "score": 40
+    },
+    {
+      "section": "trend",
+      "topic": "클라우드",
+      "source": "GeekNews",
+      "published_at": "2026-11-24T21:00:00+09:00",
+      "title": "클라우드 비용을 30% 줄인 팀의 회고",
+      "summary": "쓰지 않는 인스턴스를 자동으로 끄고 저장소 등급을 나눴어요. 원문에 비용 항목별 변화 표가 있어요.",
+      "url": "https://example.com/sample/cloud-cost",
+      "reactions": "댓글 96개",
+      "score": 96
+    },
+    {
+      "section": "issue",
+      "topic": "보안",
+      "source": "Hacker News",
+      "published_at": "2026-11-25T03:20:00+09:00",
+      "title": "인기 npm 패키지에서 보안 취약점이 발견됐어요",
+      "summary": "영향받는 버전과 패치 버전이 공개됐어요. 의존성 목록에서 해당 버전을 쓰고 있는지 확인하는 방법이 원문에 있어요.",
+      "url": "https://example.com/sample/npm-vuln",
+      "reactions": "댓글 412개",
+      "score": 412
+    },
+    {
+      "section": "issue",
+      "topic": "정책",
+      "source": "GeekNews",
+      "published_at": "2026-11-25T00:15:00+09:00",
+      "title": "앱 마켓의 개인정보 표시 기준이 바뀌어요",
+      "summary": "다음 달부터 수집 항목을 더 자세히 적어야 해요. 원문에 바뀌는 항목 목록과 적용 일정이 있어요.",
+      "url": "https://example.com/sample/privacy-label",
+      "reactions": "댓글 58개",
+      "score": 58
+    }
+  ],
+  "study": {
+    "slug": "vector-database",
+    "title": "벡터 데이터베이스",
+    "summary": "의미가 가까운 문서를 빠르게 찾는 데이터베이스예요.",
+    "read_minutes": 4,
+    "points": [
+      "텍스트를 벡터로 바꿔 저장해요",
+      "ANN 인덱스로 가까운 벡터를 찾아요",
+      "RAG에서 LLM에 넘길 문서를 고를 때 써요"
+    ],
+    "sections": [
+      {
+        "heading": "무엇인가요",
+        "paragraphs": ["문장이나 이미지를 숫자 벡터로 바꿔 저장하고, 의미가 가까운 것을 빠르게 찾는 데이터베이스예요. 키워드가 정확히 같지 않아도 비슷한 뜻의 문서를 찾을 수 있어요."]
+      },
+      {
+        "heading": "왜 쓰나요",
+        "paragraphs": ["LLM에게 질문할 때 관련 문서를 함께 넘기면 답이 정확해져요. 이때 수많은 문서 중 질문과 가까운 몇 개를 고르는 역할을 벡터 데이터베이스가 맡아요."]
+      },
+      {
+        "heading": "어떻게 동작하나요",
+        "paragraphs": ["임베딩 모델이 텍스트를 벡터로 바꾸고, 검색할 때는 질문도 같은 방식으로 바꿔 유사도가 높은 벡터를 찾아요. 모든 벡터와 비교하면 느리기 때문에 근사 최근접 이웃(ANN) 인덱스를 써요."],
+        "code": "results = index.query(vector=embed(\"배포 자동화\"), top_k=5)"
+      }
+    ],
+    "references": [
+      {"title": "벡터 검색 입문서", "url": "https://example.com/sample/vector-search-intro"},
+      {"title": "ANN 알고리즘 비교 벤치마크", "url": "https://example.com/sample/ann-benchmark"}
+    ]
+  }
+}

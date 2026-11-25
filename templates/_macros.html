@@ -1,0 +1,25 @@
+{% macro chevron() -%}
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+{%- endmacro %}
+
+{% macro badge(text, kind="neutral") -%}
+<span class="nl-badge nl-badge--{{ kind }}">{{ text }}</span>
+{%- endmacro %}
+
+{# 소식 한 건. show_badge: 분류 뱃지를 붙일지 #}
+{% macro news(item, show_badge=true) -%}
+<article class="nl-news" data-topic="{{ item.topic }}">
+  <div class="nl-news__meta">{% if show_badge %}{{ badge(item.topic, "brand" if item.section == "trend" else "neutral") }}{% endif %}<span>{{ item.source }} · {{ item.published_at | time_hm }}</span></div>
+  <h3 class="nl-news__title">{{ item.title }}</h3>
+  <p class="nl-news__summary">{{ item.summary }}</p>
+  <a class="nl-news__link" href="{{ item.url }}" target="_blank" rel="noopener">원문 보기{{ chevron() }}</a>
+</article>
+{%- endmacro %}
+
+{% macro study_points(points) -%}
+<ol class="nl-study__points">
+  {%- for p in points %}
+  <li><span class="nl-study__num">{{ loop.index }}</span>{{ p }}</li>
+  {%- endfor %}
+</ol>
+{%- endmacro %}

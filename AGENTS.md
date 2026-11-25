@@ -4,9 +4,26 @@ This file provides guidance to AI coding agents when working with code in this r
 
 ## Project status
 
-The repository currently contains only `README.md` — no code, build system, dependencies, or tests exist yet. When the first code is added, update this file with real build/run/test commands and architecture notes; do not assume a stack until it is chosen.
+A daily IT newsletter published as a **static website** (not email): IT trends, IT issues, and a "today's study topic". The site must have at least 5 pages; it has 6 (home, trends, issues, study, archive, about). Planned pipeline: collect (RSS/APIs such as GeekNews, Hacker News, GitHub Trending, arXiv) → dedupe/filter → LLM classify, rank, and summarize in Korean (summaries grounded only in fetched source text, always with the original link) → write `data/issues/<date>.json` → build the site → deploy. The collect/summarize step is not built yet; `data/issues/` holds sample issues with `example.com` links.
 
-Planned project: a daily IT newsletter service (IT trends, issues, and a "today's study topic"), discussed as a pipeline of collect (RSS/APIs such as GeekNews, Hacker News, GitHub Trending, arXiv) → dedupe/filter → LLM classify, rank, and summarize in Korean (summaries grounded only in fetched source text, always with the original link) → render the email → send on a daily schedule. The intended first milestone is an MVP that delivers to the author only, before adding subscriber features. Treat this as direction, not a fixed spec — confirm stack choices with the user before implementing.
+Stack (chosen with the user): Python + Jinja2 static generation, GitHub Actions for build/schedule, Cloudflare Pages for hosting. The user does not want Next.js/React.
+
+### Commands
+
+```
+pip install -r requirements.txt
+python build.py                        # writes site/ (SITE_URL env sets RSS links)
+python -m unittest discover -s tests   # 6 pages exist, internal links resolve
+python -m http.server -d site 8000     # preview at http://localhost:8000
+```
+
+### Layout
+
+- `build.py` — loads `data/issues/*.json` (newest `number` = home), renders `templates/`, generates `static/tokens.css` from `design/tokens.json`, writes `feed.xml`.
+- `templates/` — `base.html` (header/footer/nav), one template per page, `_macros.html`, `_toast.html`.
+- `static/site.css` — copy of the design system's `components/bundle.css` plus a few site-only rules at the end. Design system artifact: https://claude.ai/artifact/D1jHCFGWMkQTcqQgAj9KKv (Toss TDS-based, from `docs/DESIGN.md`).
+- `.github/workflows/deploy.yml` — test → build → `wrangler pages deploy` (skipped until `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` secrets exist). Daily cron is commented out until the collector exists.
+- `waterfall/` — blank waterfall document templates, unrelated to the code.
 
 The user communicates in Korean; respond in Korean.
 

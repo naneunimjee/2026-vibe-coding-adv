@@ -1,0 +1,52 @@
+{
+  "number": 126,
+  "date": "2026-11-21",
+  "headline": "배포 사고를 줄이는 방법이 다시 주목받았어요",
+  "highlight": "배포 사고",
+  "summary": "트렌드 1건, 이슈 1건, 오늘의 공부 1개를 골랐어요.",
+  "read_minutes": 4,
+  "items": [
+    {
+      "section": "trend",
+      "topic": "클라우드",
+      "source": "GeekNews",
+      "published_at": "2026-11-21T03:00:00+09:00",
+      "title": "점진적 배포 도구를 직접 만든 팀의 이야기",
+      "summary": "트래픽을 1%씩 늘리며 오류율을 보는 방식을 썼어요. 원문에 설정 예시와 대시보드 구성이 있어요.",
+      "url": "https://example.com/sample/progressive-delivery",
+      "reactions": "댓글 77개",
+      "score": 77
+    },
+    {
+      "section": "issue",
+      "topic": "보안",
+      "source": "Hacker News",
+      "published_at": "2026-11-21T05:30:00+09:00",
+      "title": "CI 로그에 비밀 키가 남는 실수, 이렇게 막아요",
+      "summary": "로그 마스킹이 동작하지 않는 경우를 정리했어요. 원문은 점검용 스크립트를 함께 공개해요.",
+      "url": "https://example.com/sample/ci-secret-leak",
+      "reactions": "댓글 164개",
+      "score": 164
+    }
+  ],
+  "study": {
+    "slug": "canary-release",
+    "title": "카나리 배포",
+    "summary": "새 버전을 일부 사용자에게만 먼저 내보내 문제를 일찍 찾는 배포 방식이에요.",
+    "read_minutes": 3,
+    "points": [
+      "새 버전을 소수에게 먼저 보내요",
+      "오류율과 지연을 보며 범위를 넓혀요",
+      "문제가 생기면 바로 되돌려요"
+    ],
+    "sections": [
+      {
+        "heading": "무엇인가요",
+        "paragraphs": ["광산의 카나리아처럼 일부 트래픽이 먼저 새 버전을 거쳐 가요. 지표가 괜찮으면 조금씩 비율을 늘려요."]
+      }
+    ],
+    "references": [
+      {"title": "카나리 배포 가이드", "url": "https://example.com/sample/canary-guide"}
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, study_points %}
+{% block title %}{{ study.title }} · 오늘의 공부{% endblock %}
+{% block description %}{{ study.summary }}{% endblock %}
+{% block main %}
+<main class="nl-container nl-container--narrow nl-main" style="padding-top:48px">
+  <div class="nl-gap">
+    <article class="nl-article">
+      <div class="nl-article__meta">{{ badge("오늘의 공부", "brand") }}<span>제{{ issue.number }}호 · 읽는 데 {{ study.read_minutes }}분</span></div>
+      <h1 class="nl-article__title">{{ study.title }}</h1>
+      {% for section in study.sections %}
+      <h2>{{ section.heading }}</h2>
+      {% for p in section.paragraphs %}<p>{{ p }}</p>{% endfor %}
+      {% if section.code is defined %}<pre>{{ section.code }}</pre>{% endif %}
+      {% endfor %}
+      {% if study.references is defined and study.references %}
+      <h2>더 읽어 보기</h2>
+      <ul class="nl-refs">
+        {%- for ref in study.references %}
+        <li><span>{{ ref.title }}</span><a href="{{ ref.url }}" target="_blank" rel="noopener">원문 보기</a></li>
+        {%- endfor %}
+      </ul>
+      {% endif %}
+    </article>
+    <section class="nl-study">
+      <span class="nl-study__eyebrow">요점 정리</span>
+      {{ study_points(study.points) }}
+    </section>
+    {% if prev or next %}
+    <nav class="nl-pager" aria-label="다른 주제">
+      {% if prev %}<a href="/study/{{ prev.slug }}/"><span>이전 주제</span><strong>{{ prev.title }}</strong></a>{% else %}<span></span>{% endif %}
+      {% if next %}<a href="/study/{{ next.slug }}/"><span>다음 주제</span><strong>{{ next.title }}</strong></a>{% endif %}
+    </nav>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

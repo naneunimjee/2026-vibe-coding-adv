@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}소개{% endblock %}
+{% block main %}
+<main class="nl-container nl-main">
+  <section class="nl-hero nl-hero--center">
+    <span class="nl-hero__eyebrow">매일 아침 업데이트</span>
+    <h1 class="nl-hero__title">IT 소식, <em>하루 {{ latest.read_minutes }}분</em>이면 충분해요</h1>
+    <p class="nl-hero__desc">흩어진 개발자 커뮤니티의 소식을 모아 원문에 근거해 요약해요. 오늘 알아 둘 공부 주제도 하나씩 골라 드려요.</p>
+    <div style="display:flex;justify-content:center;gap:8px;margin-top:32px;flex-wrap:wrap">
+      <a class="nl-btn nl-btn--xl nl-btn--primary" href="/">오늘 호 읽기</a>
+      <button class="nl-btn nl-btn--xl nl-btn--secondary" type="button" id="copy-rss">RSS 주소 복사</button>
+    </div>
+  </section>
+  <div class="nl-features">
+    <div class="nl-feature"><span class="nl-feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></span><h3>{{ sources | length }}곳에서 모아요</h3><p>{{ sources | join(", ") }}에서 매일 새 글을 가져와요.</p></div>
+    <div class="nl-feature"><span class="nl-feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg></span><h3>겹치는 건 걸러요</h3><p>같은 소식은 하나로 합치고, 주제별로 나눠 중요한 순서로 정렬해요.</p></div>
+    <div class="nl-feature"><span class="nl-feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></span><h3>원문에 근거해 요약해요</h3><p>가져온 원문에 있는 내용만 한국어로 요약하고, 항상 원문 링크를 함께 둬요.</p></div>
+  </div>
+  <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:48px">
+    {% for s in sources %}<span class="nl-chip">{{ s }}</span>{% endfor %}
+  </div>
+</main>
+{% include "_toast.html" %}
+{% endblock %}
+{% block scripts %}
+<script>
+  document.getElementById('copy-rss').addEventListener('click', function () {
+    navigator.clipboard.writeText(location.origin + '/feed.xml').then(function () { showToast('RSS 주소를 복사했어요'); });
+  });
+</script>
+{% endblock %}

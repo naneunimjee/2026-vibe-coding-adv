@@ -1,0 +1,46 @@
+name: 사이트 빌드·배포
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  # 수집·요약 스크립트가 생기면 주석을 풀어 매일 한국 시간 오전 8시(UTC 23시)에 실행해요.
+  # schedule:
+  #   - cron: "0 23 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: 테스트
+        run: python -m unittest discover -s tests -v
+
+      - name: 사이트 생성
+        run: python build.py
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+
+      # Cloudflare 비밀 값을 등록하기 전에는 이 단계를 건너뛰어요.
+      - name: Cloudflare Pages에 배포
+        if: github.ref == 'refs/heads/main' && env.HAS_CLOUDFLARE == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy site --project-name=it-newsletter --branch=main
