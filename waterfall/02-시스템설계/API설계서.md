@@ -1,823 +1,393 @@
-# API 설계서
+# 외부 연동·출력 인터페이스 설계서 (API 설계서)
 
-> 회원·게시글 서비스, 기술 선택과 수치는 작성 예시입니다. 프로젝트에서 승인한 요구사항·정책에 맞춰 선택하고 관련 RTM 행에 근거를 연결합니다.
+> 이 시스템은 자체 API 서버가 없다. 이 문서는 (1) 발행 작업이 **호출하는** 외부 API의 규격과 (2) 사이트가 **내보내는** 정적 경로·RSS 규격을 정의한다. 템플릿의 인증·페이지네이션·Rate Limit 항목은 이에 맞게 바꿔 썼다.
 
 | 항목 | 내용 |
 |------|------|
-| **프로젝트명** | [프로젝트명] |
-| **문서 버전** | [v1.0] |
-| **작성일** | [YYYY-MM-DD] |
-| **작성자** | [작성자명 / 역할] |
-| **승인자** | [승인자명 / 역할] |
-| **문서 상태** | [초안 / 검토중 / 승인됨] |
+| **프로젝트명** | IT 뉴스레터 (가칭) |
+| **문서 버전** | v1.0 |
+| **작성일** | 2026-11-25 |
+| **작성자** | Claude (초안 작성) / 임지영 (프로젝트 담당) |
+| **승인자** | 임지영 / 프로젝트 담당 |
+| **문서 상태** | 승인됨 (G2, 2026-11-25) |
 
 ---
 
-## 1. API 설계 원칙
+## 1. 연동 설계 원칙
 
-### 1.1 RESTful 설계 규칙
+### 1.1 외부 호출 공통 규칙
 
-| 규칙 | 설명 | 예시 |
+| 규칙 | 설명 | 근거 |
 |------|------|------|
-| 자원 중심 URL | URL은 자원(명사)을 표현, 행위(동사)는 HTTP Method로 표현 | `GET /users` (O), `GET /getUsers` (X) |
-| 복수형 사용 | 컬렉션 자원은 복수형 | `/users`, `/posts`, `/comments` |
-| 소문자 + 하이픈 | URL 경로는 소문자, 단어 구분은 하이픈(-) | `/user-profiles` (O), `/userProfiles` (X) |
-| 계층 관계 표현 | 부모-자식 관계는 경로로 표현 | `/posts/{postId}/comments` |
-| 필터/정렬/페이징 | Query Parameter 사용 | `?status=active&sort=created_at&order=desc` |
-| 행위 자원 | 동사가 필요한 경우 명시적으로 사용 | `POST /auth/login`, `POST /auth/logout` |
-| 슬래시 규칙 | 후행 슬래시 미사용 | `/users` (O), `/users/` (X) |
+| 공식 수단만 | 공식 피드·API만 호출. 웹페이지를 긁지 않는다 | BP-SRC-002 |
+| 한 곳에서 호출 | 모든 HTTP 요청은 `newsletter/http.py`, Claude 호출은 `newsletter/llm.py`를 거친다 | SAD 2.2 |
+| 식별 가능한 User-Agent | `IT-Newsletter/<버전> (+<저장소 주소>)` | BP-SRC-008 |
+| 순차 호출 | 출처 간·출처 안 모두 병렬 요청하지 않는다 | NFR-007 |
+| 시간 제한 | 요청당 20초 | 30분 안에 끝내기 위함 |
+| 재시도 | 네트워크 오류·5xx만 5초 뒤 1회. 403·404·429는 재시도하지 않는다 | BP-ERROR-005 |
+| HTTPS | 모든 요청은 `https://` | NFR-006 |
+| 받은 데이터 불신 | 응답의 텍스트·링크는 검증 전까지 신뢰하지 않는다 (링크 https 검사, HTML 미출력) | NFR-006 |
 
-### 1.2 버저닝 전략
+### 1.2 버전 관리
 
-| 항목 | 내용 |
-|------|------|
-| 방식 | [URL Path 버저닝 / Header 버저닝 / Query Parameter] |
-| 현재 버전 | `v1` |
-| URL 패턴 | `/api/v1/[resource]` |
-| 하위 호환성 | Minor 변경은 동일 버전 유지, Breaking Change 시 버전 업 |
-| 지원 정책 | 이전 버전은 [N]개월간 유지 후 Deprecated |
+외부 API 버전은 요청에 명시할 수 있으면 고정한다 (GitHub `X-GitHub-Api-Version`). Hacker News API는 "하위 호환이 항상 보장되지 않는다"고 밝히므로, 모르는 필드는 무시하고 필요한 필드가 없으면 그 항목만 버린다.
 
-### 1.3 네이밍 규칙
+### 1.3 이름 규칙
 
-| 대상 | 규칙 | 예시 |
+| 대상 | 규칙 | 예 |
 |------|------|------|
-| URL 경로 | kebab-case, 복수형 명사 | `/user-profiles`, `/blog-posts` |
-| Query Parameter | camelCase | `?pageSize=20&sortBy=createdAt` |
-| Request/Response Body | camelCase | `{ "firstName": "...", "createdAt": "..." }` |
-| Header | 표준 헤더 규칙 | `Authorization`, `Content-Type`, `X-Request-Id` |
-| 에러 코드 | UPPER_SNAKE_CASE | `USER_NOT_FOUND`, `INVALID_TOKEN` |
+| 사이트 경로 | 소문자, 끝에 `/` (디렉터리 + `index.html`) | `/trends/`, `/study/vector-database/` |
+| 데이터 필드 | snake_case | `published_at`, `read_minutes` |
+| 오류 코드 (실행 로그) | UPPER_SNAKE_CASE | `SOURCE_FETCH_FAILED` |
 
 ### 1.4 변경 이력
 
 | 버전 | 날짜 | 작성자 | 변경 내용 |
 |------|------|--------|-----------|
-| v0.1 | [YYYY-MM-DD] | [작성자] | 초안 작성 |
-| v1.0 | [YYYY-MM-DD] | [작성자] | 최종 승인 |
+| v0.1 | 2026-11-25 | Claude | 초안 작성 |
+| v1.0 | 2026-11-25 | Claude | G2 승인 |
 
 ---
 
-## 2. 인증/인가
+## 2. 인증
 
 ### 2.1 인증 방식
 
-| 방식 | 용도 | 헤더 |
-|------|------|------|
-| Bearer Token (JWT) | 사용자 인증 (웹/모바일) | `Authorization: Bearer {access_token}` |
-| API Key | 외부 시스템 연동 | `X-API-Key: {api_key}` |
-| OAuth 2.0 | 소셜 로그인 | 표준 OAuth 2.0 플로우 |
+| 대상 | 방식 | 값 보관 |
+|------|------|---------|
+| GeekNews 피드 | 없음 | - |
+| Hacker News API | 없음 | - |
+| GitHub 검색 API | `Authorization: Bearer <GITHUB_TOKEN>` | Actions 기본 토큰 (읽기 권한이면 충분) |
+| arXiv API | 없음 | - |
+| 위키백과 API | 없음 (User-Agent 필수) | - |
+| Claude API | API 키 (SDK가 `ANTHROPIC_API_KEY` 환경 변수에서 읽음) | GitHub Secrets |
+| Cloudflare Pages | API 토큰 + 계정 ID | GitHub Secrets |
 
-### 2.2 JWT 토큰 구조
+### 2.2 사이트 접근
 
-#### Access Token
-
-| 항목 | 내용 |
-|------|------|
-| 알고리즘 | [HS256 / RS256] |
-| 만료 시간 | [15분 / 30분 / 1시간] |
-| Payload 필드 | `sub` (userId), `email`, `roles`, `iat`, `exp` |
-
-#### Refresh Token
-
-| 항목 | 내용 |
-|------|------|
-| 저장 방식 | [HttpOnly Cookie / Secure Storage] |
-| 만료 시간 | [7일 / 14일 / 30일] |
-| 로테이션 | [사용 시 새 Refresh Token 발급 / 고정] |
-| 무효화 | 로그아웃 시 서버측 블랙리스트 등록 |
-
-### 2.3 OAuth 2.0 소셜 로그인 플로우
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant APIServer as API Server
-    participant OAuth as OAuth Provider<br/>(Google/Kakao/Naver)
-
-    Client->>APIServer: GET /auth/oauth/{provider}
-    APIServer->>Client: Redirect to OAuth Provider
-    Client->>OAuth: 사용자 인증 및 권한 동의
-    OAuth->>Client: Redirect with authorization code
-    Client->>APIServer: POST /auth/oauth/{provider}/callback<br/>{ code }
-    APIServer->>OAuth: Exchange code for token
-    OAuth->>APIServer: Access Token + User Info
-    APIServer->>APIServer: 사용자 조회/생성<br/>JWT 발급
-    APIServer->>Client: { accessToken, refreshToken, user }
-```
-
-### 2.4 인가 (Authorization)
-
-| 역할 | 접근 가능 자원 | 설명 |
-|------|---------------|------|
-| `anonymous` | 공개 API만 | 인증 불필요 |
-| `user` | 자신의 자원 + 공개 자원 | 일반 사용자 |
-| `editor` | 콘텐츠 관리 | 콘텐츠 편집 권한 |
-| `admin` | 모든 자원 | 시스템 관리자 |
-| [추가 역할] | [접근 범위] | [설명] |
+사이트와 RSS는 인증 없이 누구나 읽는다 (BP-CONTENT-001). 쓰기 경로는 없다.
 
 ---
 
 ## 3. 공통 규격
 
-### 3.1 요청 포맷
+### 3.1 요청 헤더
 
-#### 공통 요청 헤더
+| 헤더 | 값 | 대상 |
+|------|------|------|
+| `User-Agent` | `IT-Newsletter/<버전> (+https://github.com/naneunimjee/2026-vibe-coding-adv)` | 모든 HTTP 요청 |
+| `Accept` | 출처별 (`application/json`, `application/atom+xml`, `application/vnd.github+json`) | 해당 요청 |
+| `X-GitHub-Api-Version` | `2022-11-28` | GitHub |
 
-| 헤더 | 필수 | 설명 | 예시 |
-|------|------|------|------|
-| `Content-Type` | 필수 (Body 있을 때) | 요청 본문 형식 | `application/json` |
-| `Authorization` | 조건부 | 인증 토큰 | `Bearer eyJhbGci...` |
-| `Accept` | 선택 | 응답 형식 | `application/json` |
-| `Accept-Language` | 선택 | 응답 언어 | `ko-KR`, `en-US` |
-| `X-Request-Id` | 선택 | 요청 추적 ID | `550e8400-e29b-41d4-...` |
+### 3.2 내부 수집 결과 형식 (후보 소식)
 
-### 3.2 응답 포맷
+출처 모듈은 모두 아래 형식의 목록을 돌려준다. 저장 형식이 아니라 실행 중 메모리 형식이다.
 
-#### 단일 자원 응답
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| id | string | `<출처 코드>:<출처별 ID>` ([데이터 설계서](데이터베이스설계서.md) 4.2절) |
+| source | string | 출처명 |
+| title | string | 원문 제목 (원어) |
+| url | string | 원문 링크 |
+| published_at | datetime | 발행 시각 (시간대 포함) |
+| score | int | 반응 수 (없으면 0) |
+| source_text | string | 원문 텍스트 (요약 입력용, **저장 금지**) |
+| excerpt | string | 분류용 발췌 (`source_text` 앞 1,000자) |
 
-```json
-{
-  "data": {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
-    "email": "user@example.com",
-    "name": "[사용자명]",
-    "status": "active",
-    "createdAt": "2025-01-15T09:30:00Z",
-    "updatedAt": "2025-01-15T09:30:00Z"
-  }
-}
-```
+### 3.3 오류 기록 형식 (실행 로그)
 
-#### 목록 응답 (페이지네이션)
+`<오류 코드> <대상> <설명>` 한 줄. 예: `SOURCE_FETCH_FAILED arxiv timeout after retry`. 비밀 값과 원문 텍스트는 로그에 쓰지 않는다.
 
-```json
-{
-  "data": [
-    { "id": "...", "title": "...", "createdAt": "..." },
-    { "id": "...", "title": "...", "createdAt": "..." }
-  ],
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalItems": 150,
-    "totalPages": 8,
-    "hasNext": true,
-    "hasPrevious": false
-  }
-}
-```
+### 3.4 HTTP 상태 코드 처리 규칙
 
-#### 페이지네이션 요청 파라미터
-
-| 파라미터 | 타입 | 기본값 | 설명 |
-|----------|------|--------|------|
-| `page` | integer | 1 | 현재 페이지 (1부터 시작) |
-| `pageSize` | integer | 20 | 페이지당 항목 수 (최대 [100]) |
-| `sort` | string | `createdAt` | 정렬 기준 필드 |
-| `order` | string | `desc` | 정렬 방향 (`asc` / `desc`) |
-
-#### 커서 기반 페이지네이션 (선택)
-
-```json
-{
-  "data": [ ... ],
-  "pagination": {
-    "cursor": "eyJpZCI6MTAwfQ==",
-    "pageSize": 20,
-    "hasNext": true
-  }
-}
-```
-
-#### 정렬
-
-| 파라미터 | 설명 | 예시 |
-|----------|------|------|
-| `sort` | 정렬 필드 | `?sort=createdAt` |
-| `order` | 정렬 방향 | `?order=desc` |
-| 복수 정렬 | 쉼표 구분 | `?sort=status,-createdAt` (- 접두사는 DESC) |
-
-#### 필터링
-
-| 파라미터 | 설명 | 예시 |
-|----------|------|------|
-| 일치 | 값 일치 | `?status=active` |
-| 다중 값 | 쉼표 구분 (OR 조건) | `?status=active,inactive` |
-| 검색 | 키워드 검색 | `?q=검색어` |
-| 범위 | 시작/종료 | `?createdFrom=2025-01-01&createdTo=2025-12-31` |
-
-### 3.3 에러 응답 포맷
-
-```json
-{
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "[사용자에게 표시할 메시지]",
-    "details": [
-      {
-        "field": "email",
-        "message": "[필드별 오류 메시지]",
-        "value": "[입력값 (민감정보 제외)]"
-      }
-    ],
-    "timestamp": "2025-01-15T09:30:00Z",
-    "path": "/api/v1/users",
-    "requestId": "550e8400-e29b-41d4-a716-446655440000"
-  }
-}
-```
-
-### 3.4 HTTP 상태 코드 사용 규칙
-
-| 상태 코드 | 의미 | 사용 상황 |
-|-----------|------|-----------|
-| `200 OK` | 성공 | GET 조회 성공, PUT/PATCH 수정 성공 |
-| `201 Created` | 생성 성공 | POST로 자원 생성 성공 |
-| `204 No Content` | 성공 (응답 본문 없음) | DELETE 삭제 성공 |
-| `400 Bad Request` | 잘못된 요청 | 유효성 검증 실패, 잘못된 파라미터 |
-| `401 Unauthorized` | 인증 필요 | 토큰 없음, 토큰 만료 |
-| `403 Forbidden` | 권한 없음 | 인증은 되었으나 접근 권한 부족 |
-| `404 Not Found` | 자원 없음 | 요청한 자원이 존재하지 않음 |
-| `409 Conflict` | 충돌 | 중복 데이터, 상태 충돌 |
-| `422 Unprocessable Entity` | 처리 불가 | 비즈니스 규칙 위반 |
-| `429 Too Many Requests` | 요청 초과 | Rate Limit 초과 |
-| `500 Internal Server Error` | 서버 오류 | 예상치 못한 서버 오류 |
-| `502 Bad Gateway` | 게이트웨이 오류 | 업스트림 서버 응답 불가 |
-| `503 Service Unavailable` | 서비스 불가 | 서버 점검, 과부하 |
+| 상태 | 처리 | 근거 |
+|------|------|------|
+| 200 | 정상 처리 | |
+| 301·302 | 따라간다 (GeekNews 피드는 FeedBurner로 302) | |
+| 403 | 차단으로 보고 재시도 없이 그 출처(또는 그 원문) 건너뜀 | BP-SRC-004, BP-ERROR-005 |
+| 404 | 재시도 없이 건너뜀 | |
+| 429 | 재시도 없이 그 출처 건너뜀 | BP-ERROR-005 |
+| 5xx, 연결 오류, 시간 초과 | 5초 뒤 1회 재시도, 실패 시 건너뜀 | BP-ERROR-005 |
 
 ---
 
-## 4. API 엔드포인트 목록
+## 4. 연동 목록
 
-### 4.1 인증 API (Auth)
+### 4.1 호출하는 외부 엔드포인트 (Outbound)
 
-| Method | URL | 설명 | 인증 | 요청 Body | 성공 코드 |
-|--------|-----|------|------|-----------|-----------|
-| POST | `/api/v1/auth/register` | 회원 가입 | 불필요 | email, password, name | 201 |
-| POST | `/api/v1/auth/login` | 로그인 | 불필요 | email, password | 200 |
-| POST | `/api/v1/auth/logout` | 로그아웃 | Bearer | - | 204 |
-| POST | `/api/v1/auth/refresh` | 토큰 갱신 | Refresh Token | refreshToken | 200 |
-| POST | `/api/v1/auth/forgot-password` | 비밀번호 재설정 요청 | 불필요 | email | 200 |
-| POST | `/api/v1/auth/reset-password` | 비밀번호 재설정 | 불필요 | token, newPassword | 200 |
-| GET | `/api/v1/auth/verify-email` | 이메일 인증 | 불필요 | ?token=... | 200 |
+| ID | 대상 | 메서드 | 주소 | 발행 1회당 요청 수 | 관련 FR |
+|----|------|--------|------|------|---------|
+| OUT-01 | GeekNews 피드 | GET | `https://news.hada.io/rss/news` | 1 | FR-001 |
+| OUT-02 | HN 상위 글 목록 | GET | `https://hacker-news.firebaseio.com/v0/topstories.json` | 1 | FR-001 |
+| OUT-03 | HN 글 상세 | GET | `https://hacker-news.firebaseio.com/v0/item/<id>.json` | 최대 30 | FR-001 |
+| OUT-04 | HN 외부 원문 | GET | 글의 `url` | 수집 기간 안의 글만 (최대 30) | FR-001 |
+| OUT-05 | GitHub 저장소 검색 | GET | `https://api.github.com/search/repositories` | 1 | FR-001 |
+| OUT-06 | GitHub README | GET | `https://api.github.com/repos/<owner>/<repo>/readme` | 최대 10 | FR-001 |
+| OUT-07 | arXiv 검색 | GET | `https://export.arxiv.org/api/query` | 1 | FR-001 |
+| OUT-08 | 위키백과 검색 | GET | `https://<lang>.wikipedia.org/w/api.php` (`action=query&list=search`) | 후보당 1~2 | FR-006 |
+| OUT-09 | 위키백과 요약 | GET | `https://<lang>.wikipedia.org/api/rest_v1/page/summary/<title>` | 후보당 1 | FR-006 |
+| OUT-10 | Claude 메시지 | POST (SDK) | Anthropic Messages API | 분류 1~2, 요약 최대 12, 공부 2 | FR-003·005·006 |
+| OUT-11 | Cloudflare Pages 배포 | wrangler | `pages deploy site` | 1 | FR-008 |
 
-### 4.2 사용자 API (Users)
+### 4.2 내보내는 인터페이스 (Outbound to 방문자)
 
-| Method | URL | 설명 | 인증 | 요청 Body | 성공 코드 |
-|--------|-----|------|------|-----------|-----------|
-| GET | `/api/v1/users` | 사용자 목록 조회 | Bearer (Admin) | - | 200 |
-| GET | `/api/v1/users/{userId}` | 사용자 상세 조회 | Bearer | - | 200 |
-| GET | `/api/v1/users/me` | 내 정보 조회 | Bearer | - | 200 |
-| PUT | `/api/v1/users/me` | 내 정보 수정 | Bearer | name, profileImageUrl | 200 |
-| PATCH | `/api/v1/users/me/password` | 비밀번호 변경 | Bearer | currentPassword, newPassword | 200 |
-| DELETE | `/api/v1/users/me` | 회원 탈퇴 | Bearer | password | 204 |
-| PATCH | `/api/v1/users/{userId}/status` | 사용자 상태 변경 | Bearer (Admin) | status | 200 |
-| GET | `/api/v1/users/{userId}/posts` | 사용자 게시글 목록 | Bearer | - | 200 |
-
-### 4.3 게시글 API (Posts)
-
-| Method | URL | 설명 | 인증 | 요청 Body | 성공 코드 |
-|--------|-----|------|------|-----------|-----------|
-| GET | `/api/v1/posts` | 게시글 목록 조회 | 선택 | - | 200 |
-| POST | `/api/v1/posts` | 게시글 작성 | Bearer | title, content, categoryId, tagIds, status | 201 |
-| GET | `/api/v1/posts/{postId}` | 게시글 상세 조회 | 선택 | - | 200 |
-| PUT | `/api/v1/posts/{postId}` | 게시글 수정 | Bearer (작성자/Admin) | title, content, categoryId, tagIds | 200 |
-| DELETE | `/api/v1/posts/{postId}` | 게시글 삭제 | Bearer (작성자/Admin) | - | 204 |
-| PATCH | `/api/v1/posts/{postId}/status` | 게시글 상태 변경 | Bearer (작성자/Admin) | status | 200 |
-
-### 4.4 댓글 API (Comments)
-
-| Method | URL | 설명 | 인증 | 요청 Body | 성공 코드 |
-|--------|-----|------|------|-----------|-----------|
-| GET | `/api/v1/posts/{postId}/comments` | 댓글 목록 조회 | 선택 | - | 200 |
-| POST | `/api/v1/posts/{postId}/comments` | 댓글 작성 | Bearer | content, parentId | 201 |
-| PUT | `/api/v1/comments/{commentId}` | 댓글 수정 | Bearer (작성자) | content | 200 |
-| DELETE | `/api/v1/comments/{commentId}` | 댓글 삭제 | Bearer (작성자/Admin) | - | 204 |
-
-### 4.5 파일 API (Files)
-
-| Method | URL | 설명 | 인증 | 요청 Body | 성공 코드 |
-|--------|-----|------|------|-----------|-----------|
-| POST | `/api/v1/files/upload` | 파일 업로드 | Bearer | multipart/form-data | 201 |
-| GET | `/api/v1/files/{fileId}` | 파일 메타데이터 조회 | Bearer | - | 200 |
-| GET | `/api/v1/files/{fileId}/download` | 파일 다운로드 | Bearer | - | 200 |
-| DELETE | `/api/v1/files/{fileId}` | 파일 삭제 | Bearer (업로더/Admin) | - | 204 |
-
-### 4.6 카테고리/태그 API
-
-| Method | URL | 설명 | 인증 | 요청 Body | 성공 코드 |
-|--------|-----|------|------|-----------|-----------|
-| GET | `/api/v1/categories` | 카테고리 목록 | 불필요 | - | 200 |
-| POST | `/api/v1/categories` | 카테고리 생성 | Bearer (Admin) | name, parentId, description | 201 |
-| GET | `/api/v1/tags` | 태그 목록 | 불필요 | - | 200 |
-| POST | `/api/v1/tags` | 태그 생성 | Bearer | name | 201 |
-
-### 4.7 알림 API (Notifications)
-
-| Method | URL | 설명 | 인증 | 요청 Body | 성공 코드 |
-|--------|-----|------|------|-----------|-----------|
-| GET | `/api/v1/notifications` | 알림 목록 조회 | Bearer | - | 200 |
-| PATCH | `/api/v1/notifications/{notificationId}/read` | 알림 읽음 처리 | Bearer | - | 200 |
-| POST | `/api/v1/notifications/read-all` | 전체 읽음 처리 | Bearer | - | 200 |
+| ID | 경로 | 형식 | 설명 | 관련 FR |
+|----|------|------|------|---------|
+| SITE-01 | `/` | HTML | 홈 (최신 호) | FR-009 |
+| SITE-02 | `/trends/` | HTML | IT 트렌드 | FR-010 |
+| SITE-03 | `/issues/` | HTML | IT 이슈 | FR-011 |
+| SITE-04 | `/study/<slug>/` | HTML | 오늘의 공부 | FR-012 |
+| SITE-05 | `/archive/` | HTML | 지난 호 | FR-013 |
+| SITE-06 | `/issue/<number>/` | HTML | 호별 페이지 | FR-013 |
+| SITE-07 | `/about/` | HTML | 소개 | FR-014 |
+| SITE-08 | `/feed.xml` | RSS 2.0 | 최근 20개 호 | FR-015 |
+| SITE-09 | `/404.html` | HTML | 없는 주소 (Pages가 404 상태로 제공) | FR-016 |
+| SITE-10 | `/static/*.css` | CSS | 디자인 시스템, 토큰 | NFR-005 |
 
 ---
 
-## 5. API 상세 명세
+## 5. 연동 상세 명세
 
-### 5.1 POST /api/v1/auth/register - 회원 가입
+### 5.1 OUT-01 GeekNews 피드
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `/api/v1/auth/register` |
-| **Method** | POST |
-| **인증** | 불필요 |
-| **설명** | 새 사용자 계정을 생성한다. 인증 이메일이 발송된다. |
+| 형식 | Atom (`<feed>`, 항목 `<entry>` 약 20개, 최신순). 302로 FeedBurner 주소로 이동 |
+| 이용 조건 | robots.txt가 허용. 약관은 과도한 부하의 자동 접근만 금지 → 발행 1회 1요청 |
 
-#### Path Parameters
+| 수집 필드 | Atom 요소 | 변환 |
+|-----------|-----------|------|
+| id | `<id>` 또는 `<link href>`의 `topic?id=` 값 | `gn:<값>` |
+| title | `<title>` | 그대로 |
+| url | `<link href>` (GeekNews 토론 페이지) | https 확인 (BP-SRC-007) |
+| published_at | `<published>`, 없으면 `<updated>` | 시간대 포함 파싱 |
+| score | 없음 | 0 |
+| source_text | `<content type="html">` | HTML 태그 제거한 텍스트 |
 
-없음.
+수집 기간 밖의 항목은 버린다.
 
-#### Query Parameters
-
-없음.
-
-#### Request Headers
-
-| 헤더 | 필수 | 값 |
-|------|------|-----|
-| `Content-Type` | 필수 | `application/json` |
-
-#### Request Body
-
-```json
-{
-  "email": "user@example.com",
-  "password": "SecureP@ss1234",
-  "name": "[사용자명]",
-  "agreeToTerms": true
-}
-```
-
-| 필드 | 타입 | 필수 | 검증 규칙 | 설명 |
-|------|------|------|-----------|------|
-| `email` | string | 필수 | 이메일 형식, 최대 255자 | 이메일 주소 |
-| `password` | string | 필수 | 최소 8자, 대소문자+숫자+특수문자 포함 | 비밀번호 |
-| `name` | string | 필수 | 2~100자 | 사용자 이름 |
-| `agreeToTerms` | boolean | 필수 | `true`만 허용 | 이용약관 동의 |
-
-#### Response Body - 성공 (201 Created)
-
-```json
-{
-  "data": {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
-    "email": "user@example.com",
-    "name": "[사용자명]",
-    "status": "inactive",
-    "createdAt": "2025-01-15T09:30:00Z"
-  }
-}
-```
-
-#### Response Body - 실패 (409 Conflict)
-
-```json
-{
-  "error": {
-    "code": "EMAIL_ALREADY_EXISTS",
-    "message": "[이미 등록된 이메일 주소입니다]",
-    "timestamp": "2025-01-15T09:30:00Z",
-    "path": "/api/v1/auth/register",
-    "requestId": "req-uuid-here"
-  }
-}
-```
-
-#### Response Body - 실패 (400 Bad Request)
-
-```json
-{
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "[입력값이 올바르지 않습니다]",
-    "details": [
-      {
-        "field": "password",
-        "message": "[비밀번호는 8자 이상이어야 합니다]"
-      }
-    ],
-    "timestamp": "2025-01-15T09:30:00Z",
-    "path": "/api/v1/auth/register",
-    "requestId": "req-uuid-here"
-  }
-}
-```
-
----
-
-### 5.2 POST /api/v1/auth/login - 로그인
+### 5.2 OUT-02~04 Hacker News
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `/api/v1/auth/login` |
-| **Method** | POST |
-| **인증** | 불필요 |
-| **설명** | 이메일/비밀번호로 로그인하여 JWT 토큰을 발급받는다. |
+| 형식 | JSON. `topstories`는 ID 배열(최대 500), `item`은 객체 |
+| 이용 조건 | 공식 API, 인증 없음, 요청 제한 명시 없음 → 상위 30건만 조회 |
 
-#### Request Body
+| 수집 필드 | API 필드 | 변환 |
+|-----------|----------|------|
+| id | `id` | `hn:<id>` |
+| title | `title` | 그대로 |
+| url | `url`. 없으면 `https://news.ycombinator.com/item?id=<id>` | https 아니면 제외 (BP-SUM-004) |
+| published_at | `time` (Unix 초) | UTC → 시간대 포함 |
+| score | `score` | 그대로 |
+| source_text | `url`이 있으면 원문 페이지(OUT-04)의 본문 텍스트, 없으면 `text` | HTML 태그 제거 |
 
-```json
-{
-  "email": "user@example.com",
-  "password": "SecureP@ss1234"
-}
-```
+**처리:** `type == "story"`만. 수집 기간 밖이면 원문(OUT-04)을 요청하지 않는다. 원문이 403·로그인·HTML이 아님이면 `source_text` 없음 → FR-005에서 제외.
 
-| 필드 | 타입 | 필수 | 검증 규칙 | 설명 |
-|------|------|------|-----------|------|
-| `email` | string | 필수 | 이메일 형식 | 이메일 주소 |
-| `password` | string | 필수 | - | 비밀번호 |
-
-#### Response Body - 성공 (200 OK)
-
-```json
-{
-  "data": {
-    "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-    "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
-    "tokenType": "Bearer",
-    "expiresIn": 900,
-    "user": {
-      "id": "550e8400-e29b-41d4-a716-446655440000",
-      "email": "user@example.com",
-      "name": "[사용자명]",
-      "roles": ["user"]
-    }
-  }
-}
-```
-
-#### Response Body - 실패 (401 Unauthorized)
-
-```json
-{
-  "error": {
-    "code": "INVALID_CREDENTIALS",
-    "message": "[이메일 또는 비밀번호가 올바르지 않습니다]",
-    "timestamp": "2025-01-15T09:30:00Z",
-    "path": "/api/v1/auth/login",
-    "requestId": "req-uuid-here"
-  }
-}
-```
-
----
-
-### 5.3 GET /api/v1/posts - 게시글 목록 조회
+### 5.3 OUT-05~06 GitHub
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `/api/v1/posts` |
-| **Method** | GET |
-| **인증** | 선택 (인증 시 추가 정보 포함) |
-| **설명** | 발행된 게시글 목록을 페이지네이션으로 조회한다. |
+| 형식 | JSON (`items` 배열) |
+| 이용 조건 | 공식 검색 API, 인증 시 분당 30회 (발행 1회 1요청) |
+| 요청 (제안) | `q=created:>=<수집 기간 시작일> stars:>=50`, `sort=stars`, `order=desc`, `per_page=10` |
+| 확인 필요 | `created:` 한정자와 `stars:` 조건의 동작은 03 상세 설계에서 실제 호출로 확인한다 (조사 시 공식 페이지에서 한정자 목록을 확인하지 못함) |
 
-#### Query Parameters
+| 수집 필드 | API 필드 | 변환 |
+|-----------|----------|------|
+| id | `full_name` | `gh:<owner/repo>` |
+| title | `full_name` + `description` | 요약 단계에서 한국어 제목으로 |
+| url | `html_url` | https |
+| published_at | `created_at` | 시간대 포함 |
+| score | `stargazers_count` | 그대로 |
+| source_text | `description` + README(OUT-06) 앞 4,000자 | README는 Markdown 그대로 텍스트로 |
 
-| 파라미터 | 타입 | 필수 | 기본값 | 설명 |
-|----------|------|------|--------|------|
-| `page` | integer | 선택 | 1 | 페이지 번호 |
-| `pageSize` | integer | 선택 | 20 | 페이지당 항목 수 (최대 100) |
-| `sort` | string | 선택 | `createdAt` | 정렬 기준 (createdAt, viewCount, title) |
-| `order` | string | 선택 | `desc` | 정렬 방향 (asc, desc) |
-| `q` | string | 선택 | - | 검색어 (제목, 본문) |
-| `categoryId` | uuid | 선택 | - | 카테고리 필터 |
-| `status` | string | 선택 | `published` | 상태 필터 (admin 전용: all) |
-| `authorId` | uuid | 선택 | - | 작성자 필터 |
-| `tag` | string | 선택 | - | 태그 필터 (쉼표 구분) |
-
-#### Response Body - 성공 (200 OK)
-
-```json
-{
-  "data": [
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440000",
-      "title": "[게시글 제목]",
-      "content": "[본문 미리보기 200자...]",
-      "status": "published",
-      "viewCount": 42,
-      "author": {
-        "id": "author-uuid",
-        "name": "[작성자명]",
-        "profileImageUrl": "https://..."
-      },
-      "category": {
-        "id": "category-uuid",
-        "name": "[카테고리명]"
-      },
-      "tags": [
-        { "id": "tag-uuid-1", "name": "[태그1]" },
-        { "id": "tag-uuid-2", "name": "[태그2]" }
-      ],
-      "commentCount": 5,
-      "publishedAt": "2025-01-15T09:30:00Z",
-      "createdAt": "2025-01-15T09:00:00Z"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalItems": 150,
-    "totalPages": 8,
-    "hasNext": true,
-    "hasPrevious": false
-  }
-}
-```
-
----
-
-### 5.4 POST /api/v1/posts - 게시글 작성
+### 5.4 OUT-07 arXiv
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `/api/v1/posts` |
-| **Method** | POST |
-| **인증** | Bearer Token (필수) |
-| **설명** | 새 게시글을 작성한다. |
+| 형식 | Atom |
+| 이용 조건 | 3초에 1회, 연결 1개. 메타데이터는 CC0. PDF를 보관하지 않고 초록 페이지로 링크. arXiv가 보증한다는 표현 금지 |
+| 요청 (제안) | `search_query=cat:cs.AI OR cat:cs.CL OR cat:cs.LG OR cat:cs.SE`, `sortBy=submittedDate`, `sortOrder=descending`, `max_results=20` |
+| 확인 필요 | 요청 주소·매개변수는 03에서 실제 호출로 확인한다 |
 
-#### Request Headers
+| 수집 필드 | Atom 요소 | 변환 |
+|-----------|-----------|------|
+| id | `<id>`의 논문 번호 (버전 제외) | `ax:<번호>` |
+| title | `<title>` | 줄바꿈 정리 |
+| url | `https://arxiv.org/abs/<번호>` | 초록 페이지 |
+| published_at | `<published>` | 시간대 포함 |
+| score | 없음 | 0 |
+| source_text | `<title>` + `<summary>` (초록) | 그대로 |
 
-| 헤더 | 필수 | 값 |
-|------|------|-----|
-| `Content-Type` | 필수 | `application/json` |
-| `Authorization` | 필수 | `Bearer {accessToken}` |
-
-#### Request Body
-
-```json
-{
-  "title": "[게시글 제목]",
-  "content": "[게시글 본문 내용 (Markdown 지원)]",
-  "categoryId": "category-uuid",
-  "tagIds": ["tag-uuid-1", "tag-uuid-2"],
-  "status": "draft",
-  "fileIds": ["file-uuid-1"]
-}
-```
-
-| 필드 | 타입 | 필수 | 검증 규칙 | 설명 |
-|------|------|------|-----------|------|
-| `title` | string | 필수 | 1~200자 | 게시글 제목 |
-| `content` | string | 필수 | 1~[N]자 | 게시글 본문 |
-| `categoryId` | uuid | 선택 | 유효한 카테고리 ID | 카테고리 |
-| `tagIds` | uuid[] | 선택 | 최대 [10]개 | 태그 목록 |
-| `status` | string | 선택 | `draft` / `published` | 게시글 상태 (기본: draft) |
-| `fileIds` | uuid[] | 선택 | 최대 [20]개 | 첨부 파일 ID 목록 |
-
-#### Response Body - 성공 (201 Created)
-
-```json
-{
-  "data": {
-    "id": "new-post-uuid",
-    "title": "[게시글 제목]",
-    "content": "[게시글 본문]",
-    "status": "draft",
-    "viewCount": 0,
-    "author": {
-      "id": "author-uuid",
-      "name": "[작성자명]"
-    },
-    "category": {
-      "id": "category-uuid",
-      "name": "[카테고리명]"
-    },
-    "tags": [
-      { "id": "tag-uuid-1", "name": "[태그1]" }
-    ],
-    "files": [
-      { "id": "file-uuid-1", "originalName": "[파일명]", "url": "https://..." }
-    ],
-    "createdAt": "2025-01-15T09:30:00Z",
-    "updatedAt": "2025-01-15T09:30:00Z"
-  }
-}
-```
-
----
-
-### 5.5 POST /api/v1/files/upload - 파일 업로드
+### 5.5 OUT-08~09 위키백과
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `/api/v1/files/upload` |
-| **Method** | POST |
-| **인증** | Bearer Token (필수) |
-| **설명** | 파일을 업로드한다. 이미지는 자동으로 리사이징/썸네일이 생성된다. |
+| 이용 조건 | 연락처가 담긴 User-Agent 필수(없으면 403), 요청은 직렬로. 본문은 CC BY-SA 4.0 |
+| 순서 | ① 한국어 위키백과에서 검색(OUT-08)해 가장 맞는 문서 제목을 찾는다 → ② 요약(OUT-09)을 가져온다 → ③ 없으면 영어 위키백과로 ①② 반복 |
+| 확인 필요 | 검색 API(`action=query&list=search`)의 응답 형식은 03에서 실제 호출로 확인한다. 요약 API는 조사 때 응답을 확인했다 |
 
-#### Request Headers
+| 사용 필드 (요약 API) | 용도 |
+|-----------|------|
+| `title` | `study.wikipedia.title` |
+| `extract` | 공부 글 생성의 근거 텍스트 (**저장 금지**) |
+| `content_urls.desktop.page` | `study.wikipedia.url`, `references[0].url` |
+| `type` | `disambiguation`(동음이의 문서)이면 사용하지 않고 다음 후보로 |
 
-| 헤더 | 필수 | 값 |
-|------|------|-----|
-| `Content-Type` | 필수 | `multipart/form-data` |
-| `Authorization` | 필수 | `Bearer {accessToken}` |
+### 5.6 OUT-10 Claude
 
-#### Request Body (multipart/form-data)
+모델과 effort는 SAD ADR-004 결정을 따른다. 모든 호출은 구조화 출력(JSON 스키마)으로 응답 형식을 고정하고, 응답은 저장 전에 데이터 설계서 3장 규칙으로 다시 검사한다.
 
-| 필드 | 타입 | 필수 | 설명 |
-|------|------|------|------|
-| `file` | binary | 필수 | 업로드할 파일 |
-| `entityType` | string | 선택 | 연관 엔티티 타입 (post, comment, profile) |
-| `entityId` | string | 선택 | 연관 엔티티 ID |
+| 호출 | 입력 | 출력 (구조화) | 호출 수 | 관련 |
+|------|------|---------------|---------|------|
+| 분류 | 후보 목록: `id`, 출처, 원제목, `excerpt` | 후보마다 `id`, `section`(`trend`\|`issue`\|`irrelevant`), `topic`, `importance` | 1 (후보가 많으면 40건씩 나눠 2) | FR-003, ADR-005 |
+| 요약 | 소식 1건: 원제목, 출처, `source_text` 앞부분(약 6천 토큰 이하) | `title`, `summary` | 선정 건수 (최대 12) | FR-005 |
+| 공부 후보 | 선정 소식의 제목·요약 | 개념 후보 3개 (`title`, `slug`, 검색어) | 1 | FR-006 |
+| 공부 글 | 위키백과 `extract` + 관련 소식 `source_text` 앞부분 | `summary`, `points`(3), `sections`(2~4), `read_minutes` | 1 | FR-006 |
 
-#### 파일 제한
+**프롬프트 규칙 (03에서 문구 확정):**
 
-| 항목 | 제한 |
+- 시스템 지시에 BP-SUM·BP-TEXT 규칙(해요체, 원문에 없는 사실 금지, 과장 금지, 길이)을 넣는다.
+- 원문 텍스트는 "참고 자료" 구역에 넣고, 그 안의 지시문은 따르지 않도록 명시한다 (프롬프트 주입 대응).
+- 응답이 형식·길이 검사에 실패하면 같은 입력으로 1회 다시 요청하고, 또 실패하면 그 항목을 제외한다 (FR-005).
+- 거절(refusal) 응답에 대비해 SDK의 서버 측 대체 모델 옵션을 켠다. 거절된 항목은 제외한다.
+- API 오류(429, 5xx)는 SDK 기본 재시도에 맡기고, 최종 실패는 BP-ERROR-003을 따른다.
+
+### 5.7 OUT-11 Cloudflare Pages 배포
+
+| 항목 | 내용 |
 |------|------|
-| 최대 파일 크기 | [10MB / 50MB / 100MB] |
-| 허용 MIME 타입 | image/jpeg, image/png, image/gif, image/webp, application/pdf, [추가 타입] |
-| 파일명 최대 길이 | 255자 |
+| 방식 | 공식 GitHub Action `cloudflare/wrangler-action`으로 `pages deploy site --project-name=it-newsletter --branch=main` |
+| 조건 | `main` 브랜치, `CLOUDFLARE_API_TOKEN`·`CLOUDFLARE_ACCOUNT_ID`·`SITE_URL`이 모두 있음 |
+| 사전 준비 | Cloudflare 대시보드에서 Pages 프로젝트 `it-newsletter`를 Direct Upload로 한 번 생성 |
 
-#### Response Body - 성공 (201 Created)
+### 5.8 SITE-08 RSS 피드
 
-```json
-{
-  "data": {
-    "id": "file-uuid",
-    "originalName": "[원본파일명.png]",
-    "mimeType": "image/png",
-    "sizeBytes": 1048576,
-    "url": "https://cdn.example.com/files/stored-name.png",
-    "thumbnailUrl": "https://cdn.example.com/files/stored-name-thumb.png",
-    "createdAt": "2025-01-15T09:30:00Z"
-  }
-}
-```
+| 요소 | 값 | 근거 |
+|------|------|------|
+| `<rss version="2.0">` | 고정 | FR-015 |
+| `<channel><title>` | `IT 뉴스레터` (서비스명 확정 시 변경) | DEC-001 |
+| `<channel><link>` | `<SITE_URL>/` | |
+| `<channel><language>` | `ko` | |
+| `<item>` 수 | 최근 20개 호, 최신순 | BP-CONTENT-006 |
+| `<item><title>` | `제<number>호 · <headline>` | |
+| `<item><link>`, `<guid>` | `<SITE_URL>/issue/<number>/` (https) | FR-015-AC2 |
+| `<item><pubDate>` | 호 날짜 08:00 KST (RFC 822) | |
+| `<item><description>` | `summary` | |
 
-#### Response Body - 실패 (400 Bad Request)
-
-```json
-{
-  "error": {
-    "code": "FILE_TOO_LARGE",
-    "message": "[파일 크기가 제한을 초과합니다. 최대 10MB까지 업로드 가능합니다]",
-    "timestamp": "2025-01-15T09:30:00Z",
-    "path": "/api/v1/files/upload",
-    "requestId": "req-uuid-here"
-  }
-}
-```
+`SITE_URL`이 없거나 `https://`가 아니면 운영 빌드는 실패해야 한다 (코드 리뷰 지적 반영, FR-015-AC2).
 
 ---
 
-## 6. 에러 코드 테이블
+## 6. 오류 코드 테이블 (실행 로그)
 
-### 6.1 인증/인가 에러
+### 6.1 수집 오류
 
-| 에러 코드 | HTTP 상태 | 메시지 | 설명 | 대응 방안 |
-|-----------|-----------|--------|------|-----------|
-| `INVALID_CREDENTIALS` | 401 | 이메일 또는 비밀번호가 올바르지 않습니다 | 로그인 실패 | 자격 증명 재확인 |
-| `TOKEN_EXPIRED` | 401 | 인증 토큰이 만료되었습니다 | Access Token 만료 | Refresh Token으로 재발급 |
-| `TOKEN_INVALID` | 401 | 유효하지 않은 인증 토큰입니다 | JWT 변조/형식 오류 | 재로그인 |
-| `REFRESH_TOKEN_EXPIRED` | 401 | 갱신 토큰이 만료되었습니다 | Refresh Token 만료 | 재로그인 |
-| `FORBIDDEN` | 403 | 접근 권한이 없습니다 | 권한 부족 | 관리자에게 권한 요청 |
-| `ACCOUNT_SUSPENDED` | 403 | 정지된 계정입니다 | 관리자 조치 | 관리자 문의 |
-| `EMAIL_NOT_VERIFIED` | 403 | 이메일 인증이 필요합니다 | 이메일 미인증 | 인증 메일 재발송 |
+| 코드 | 의미 | 처리 |
+|------|------|------|
+| `SOURCE_FETCH_FAILED` | 출처 요청 실패 (재시도 후) | 그 출처 건너뜀 |
+| `SOURCE_BLOCKED` | 403·429 응답 | 그 출처 건너뜀, 재시도 없음 |
+| `SOURCE_PARSE_FAILED` | 응답 형식이 예상과 다름 | 그 출처 건너뜀 |
+| `ORIGINAL_UNAVAILABLE` | 원문 텍스트를 못 얻음 | 그 소식 제외 |
 
-### 6.2 유효성 검증 에러
+### 6.2 검증 오류
 
-| 에러 코드 | HTTP 상태 | 메시지 | 설명 | 대응 방안 |
-|-----------|-----------|--------|------|-----------|
-| `VALIDATION_ERROR` | 400 | 입력값이 올바르지 않습니다 | 필드 검증 실패 | details 확인 후 재시도 |
-| `MISSING_REQUIRED_FIELD` | 400 | 필수 필드가 누락되었습니다 | 필수 값 미입력 | 필수 필드 입력 |
-| `INVALID_FORMAT` | 400 | 입력 형식이 올바르지 않습니다 | 형식 불일치 | 올바른 형식으로 재입력 |
+| 코드 | 의미 | 처리 |
+|------|------|------|
+| `LINK_NOT_HTTPS` | 링크가 https가 아님 | 그 소식 제외 |
+| `LLM_INVALID_OUTPUT` | 형식·값·길이 검사 실패 (재요청 후) | 그 소식 제외 |
+| `ISSUE_INVALID` | 호 파일 검증 실패 | 저장·배포 중단, 비정상 종료 |
 
-### 6.3 비즈니스 로직 에러
+### 6.3 업무 오류
 
-| 에러 코드 | HTTP 상태 | 메시지 | 설명 | 대응 방안 |
-|-----------|-----------|--------|------|-----------|
-| `EMAIL_ALREADY_EXISTS` | 409 | 이미 등록된 이메일입니다 | 이메일 중복 | 다른 이메일 사용 |
-| `RESOURCE_NOT_FOUND` | 404 | 요청한 자원을 찾을 수 없습니다 | 자원 미존재 | ID 확인 |
-| `POST_NOT_EDITABLE` | 422 | 수정할 수 없는 상태의 게시글입니다 | 상태 제약 | 게시글 상태 확인 |
-| `FILE_TOO_LARGE` | 400 | 파일 크기가 제한을 초과합니다 | 용량 초과 | 파일 크기 줄이기 |
-| `UNSUPPORTED_FILE_TYPE` | 400 | 지원하지 않는 파일 형식입니다 | 타입 불일치 | 지원 형식 확인 |
-| `COMMENT_DEPTH_EXCEEDED` | 422 | 대댓글 깊이 제한을 초과했습니다 | 대댓글 깊이 초과 | 상위 댓글에 작성 |
+| 코드 | 의미 | 처리 |
+|------|------|------|
+| `NO_ITEMS` | 선정 결과 0건 | 호 생성 안 함, 비정상 종료 (BP-ERROR-002) |
+| `STUDY_SKIPPED` | 오늘의 공부 생성 실패 | 공부 없이 진행 (BP-ERROR-004) |
 
-### 6.4 시스템 에러
+### 6.4 시스템 오류
 
-| 에러 코드 | HTTP 상태 | 메시지 | 설명 | 대응 방안 |
-|-----------|-----------|--------|------|-----------|
-| `INTERNAL_SERVER_ERROR` | 500 | 서버 내부 오류가 발생했습니다 | 예상치 못한 오류 | 잠시 후 재시도 |
-| `SERVICE_UNAVAILABLE` | 503 | 서비스를 일시적으로 사용할 수 없습니다 | 서버 점검/과부하 | 잠시 후 재시도 |
-| `RATE_LIMIT_EXCEEDED` | 429 | 요청 횟수가 초과되었습니다 | Rate Limit 초과 | 잠시 후 재시도 |
-| `EXTERNAL_SERVICE_ERROR` | 502 | 외부 서비스 연동 오류가 발생했습니다 | 외부 API 장애 | 잠시 후 재시도 |
+| 코드 | 의미 | 처리 |
+|------|------|------|
+| `LLM_UNAVAILABLE` | Claude 호출 전체 실패 | 비정상 종료 (BP-ERROR-003) |
+| `CONFIG_MISSING` | 필수 환경 변수 없음 (`ANTHROPIC_API_KEY`, 운영 `SITE_URL`) | 비정상 종료 |
 
 ---
 
-## 7. Rate Limiting 정책
+## 7. 요청 한도 정책 (Rate Limiting)
 
 ### 7.1 전체 정책
 
-| 항목 | 내용 |
-|------|------|
-| 적용 위치 | API Gateway |
-| 식별 기준 | [IP + User ID / API Key] |
-| 응답 헤더 | `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` |
-| 초과 시 응답 | `429 Too Many Requests` |
-| 알고리즘 | [Token Bucket / Sliding Window / Fixed Window] |
+발행 작업 1회의 외부 요청은 100건 안팎이다. 모든 요청은 순차로 보내고, 호스트별 최소 간격을 지킨다.
 
-### 7.2 엔드포인트별 제한
+### 7.2 호스트별 제한
 
-| 대상 | 인증 사용자 | 비인증 사용자 | 비고 |
-|------|------------|--------------|------|
-| 전체 API (기본) | [1000 req/min] | [100 req/min] | IP 기준 |
-| `POST /auth/login` | - | [10 req/min] | 무차별 대입 방지 |
-| `POST /auth/register` | - | [5 req/min] | 스팸 계정 방지 |
-| `POST /auth/forgot-password` | - | [3 req/min] | 남용 방지 |
-| `POST /files/upload` | [30 req/min] | - | 서버 부하 방지 |
-| 검색 (`q` 파라미터) | [60 req/min] | [20 req/min] | 검색 부하 방지 |
-| [추가 엔드포인트] | [제한] | [제한] | [비고] |
+| 호스트 | 최소 간격 | 1회 실행 최대 요청 | 근거 |
+|--------|-----------|-------------------|------|
+| news.hada.io / feeds.feedburner.com | - | 1 | GeekNews 약관 제6조 |
+| hacker-news.firebaseio.com | 0.2초 | 31 | 제한 명시 없음, 예의상 간격 |
+| HN 외부 원문 (각 사이트) | 1초 | 사이트당 수 건 | BP-SRC-003 |
+| api.github.com | 2초 | 11 | 검색 분당 30회 |
+| export.arxiv.org | 3초 | 1 | arXiv 약관 |
+| *.wikipedia.org | 1초 | 6 | 위키미디어 예의 (직렬) |
+| Anthropic API | SDK 기본 | 약 16 | 계정 한도 |
 
-### 7.3 Rate Limit 응답 헤더
+### 7.3 한도 초과 응답
 
-| 헤더 | 설명 | 예시 |
-|------|------|------|
-| `X-RateLimit-Limit` | 허용된 최대 요청 수 | `1000` |
-| `X-RateLimit-Remaining` | 남은 요청 수 | `999` |
-| `X-RateLimit-Reset` | 제한 초기화 시각 (Unix timestamp) | `1705312200` |
-| `Retry-After` | 재시도 가능 시각 (초, 429 응답 시만) | `60` |
+429를 받으면 그 출처는 그날 건너뛴다 (재시도 없음). Claude의 429는 SDK가 `retry-after`를 따라 재시도한다.
 
 ---
 
-## 8. API 변경 관리
+## 8. 연동 변경 관리
 
-### 8.1 버저닝 정책
+### 8.1 출처 형식 변경 대응
 
-| 항목 | 내용 |
+출처 응답 형식이 바뀌면 `SOURCE_PARSE_FAILED`가 연속으로 남는다. 같은 출처가 3일 연속 실패하면 운영자가 확인한다 (UC-008 AF-008-01).
+
+### 8.2 깨지는 변경 (Breaking Change)
+
+| 변경 | 대응 |
 |------|------|
-| 현재 버전 | `v1` |
-| 버전 변경 기준 | Breaking Change 발생 시 Major 버전 증가 |
-| Deprecation 기간 | 새 버전 릴리스 후 [6개월] |
-| Sunset 알림 | 헤더 `Sunset: [date]`, `Deprecation: true` |
+| 출처 API 주소·필드 변경 | 해당 `sources/` 모듈 수정, 이 문서 5장 갱신 |
+| 출처 이용 조건 변경 | 정책 변경 절차로 BP-SRC 갱신, 필요하면 출처 제외 |
+| 사이트 경로 변경 | 기존 경로를 유지하거나, 바꾸면 RSS `guid`가 바뀌므로 피하는 것이 원칙 |
 
-### 8.2 Breaking Change 정의
+### 8.3 깨지지 않는 변경
 
-아래 변경은 Breaking Change로 간주하며, 새 API 버전이 필요하다.
+출처 응답에 새 필드가 생기는 것은 무시한다. 데이터 형식에 선택 필드를 추가하는 것은 `schema_version`을 올리지 않는다 ([데이터 설계서](데이터베이스설계서.md) 5.2절).
 
-| 변경 유형 | 예시 |
-|-----------|------|
-| 필드 삭제 | 기존 응답에서 필드 제거 |
-| 필드 타입 변경 | string -> integer |
-| 필수 필드 추가 | 기존 선택 -> 필수 |
-| URL 변경 | 엔드포인트 경로 변경 |
-| 에러 코드 변경 | 기존 에러 코드 변경/삭제 |
-| 동작 변경 | 기존 동작과 다른 결과 |
+### 8.4 연동 변경 로그
 
-### 8.3 Non-Breaking Change (하위 호환)
-
-아래 변경은 하위 호환이므로 동일 버전 내 적용 가능하다.
-
-| 변경 유형 | 예시 |
-|-----------|------|
-| 선택 필드 추가 | 응답에 새 필드 추가 (기존 필드 유지) |
-| 새 엔드포인트 추가 | 기존 엔드포인트 영향 없음 |
-| 새 Query Parameter 추가 | 기존 파라미터 동작 유지 |
-| 새 에러 코드 추가 | 기존 에러 코드 유지 |
-| 설명/문서 변경 | 동작 변경 없음 |
-
-### 8.4 API 변경 로그
-
-| 날짜 | 버전 | 변경 유형 | 변경 내용 | 영향 범위 |
-|------|------|-----------|-----------|-----------|
-| [YYYY-MM-DD] | v1 | 추가 | [변경 내용] | [영향 범위] |
-| [YYYY-MM-DD] | v1 | 수정 | [변경 내용] | [영향 범위] |
+| 날짜 | 대상 | 변경 | 사유 |
+|------|------|------|------|
+| 2026-11-25 | GitHub | Trending 페이지 → 공식 검색 API | GitHub 이용 정책 (SRS ISSUE-01) |
 
 ---
 
 ## 부록
 
-### A. API 문서 자동화
+### A. 확인 필요 항목 (03 상세 설계에서 실제 호출로 확인)
 
 | 항목 | 내용 |
 |------|------|
-| 도구 | [Swagger / OpenAPI 3.0] |
-| 문서 URL | `[도메인]/api-docs` |
-| 스키마 파일 | `[프로젝트 경로]/docs/openapi.yaml` |
-| 자동 생성 | 코드 어노테이션 기반 자동 갱신 |
+| CHK-01 | GitHub 검색의 `created:`·`stars:` 한정자 동작과 결과 품질 |
+| CHK-02 | arXiv API 주소·매개변수·응답 형식 |
+| CHK-03 | 위키백과 검색 API 응답 형식과 동음이의 문서 처리 |
+| CHK-04 | HN 외부 원문 페이지에서 본문 텍스트를 뽑는 방법(표준 라이브러리 HTML 파서)의 품질 |
+| CHK-05 | Claude 구조화 출력 스키마와 SDK 버전 |
 
-### B. Postman/Bruno 컬렉션
+### B. 참고 자료
 
-| 항목 | 내용 |
-|------|------|
-| 컬렉션 파일 | `[프로젝트 경로]/docs/api-collection.json` |
-| 환경 변수 | DEV, STG, PROD 환경별 분리 |
-| 테스트 스크립트 | 주요 API 시나리오 테스트 포함 |
+- GeekNews 이용약관 https://news.hada.io/terms
+- Hacker News API https://github.com/HackerNews/API
+- GitHub 검색 API https://docs.github.com/en/rest/search/search
+- arXiv API 이용 약관 https://info.arxiv.org/help/api/tou.html
+- 위키미디어 User-Agent 정책 https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_User-Agent_Policy
+- MediaWiki API 예절 https://www.mediawiki.org/wiki/API:Etiquette
 
 ### C. 참조 문서
 
-| 문서 | 경로 |
-|------|------|
-| 시스템 아키텍처 설계서 | [경로] |
-| 데이터베이스 설계서 | [경로] |
-| 화면 설계서 | [경로] |
+- [시스템 아키텍처 설계서](시스템아키텍처설계서-SAD.md)
+- [데이터 설계서](데이터베이스설계서.md)
+- [요구사항 명세서 (SRS)](../01-요구사항분석/요구사항명세서-SRS.md) 5장
