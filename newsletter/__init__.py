@@ -26,6 +26,16 @@ class Candidate:
 
 
 @dataclass
+class Classified:
+    """LLM이 분류한 후보 (상세 설계 2.1)."""
+
+    cand: Candidate
+    section: str  # "trend" | "issue" (BP-RANK-003)
+    topic: str  # BP-RANK-005
+    importance: int  # 1~5 (BP-RANK-007)
+
+
+@dataclass
 class RunLog:
     """실행 기록. 한 줄 형식은 `<오류 코드> <대상> <설명>` (API 설계 3.3)."""
 
