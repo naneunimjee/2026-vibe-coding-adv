@@ -1,0 +1,71 @@
+name: 매일 발행
+
+# 매일 한국 시간 오전 8시(UTC 23시)에 소식을 모아 새 호를 만들고 배포해요. Actions 화면에서 수동 실행도 돼요.
+on:
+  schedule:
+    - cron: "0 23 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      CAN_DEPLOY: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' && vars.SITE_URL != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: 소식 수집·요약 → 호 저장
+        run: python -m newsletter.publish
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: 호 데이터 커밋
+        run: |
+          FILE=$(git status --porcelain data/issues | awk '{print $2}' | head -1)
+          if [ -z "$FILE" ]; then echo "바뀐 호가 없어요"; exit 0; fi
+          NUM=$(python -c "import json,sys; print(json.load(open(sys.argv[1], encoding='utf-8'))['number'])" "$FILE")
+          DATE=$(basename "$FILE" .json)
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/issues
+          git commit -m "chore: 제${NUM}호 (${DATE}) 발행 데이터 추가"
+          git push
+
+      - name: 테스트
+        run: python -m unittest discover -s tests -v
+
+      - name: 사이트 생성
+        run: python build.py --production
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+
+      # 프로젝트가 이미 있으면 만들기가 실패하는데, 그건 괜찮아요.
+      - name: Cloudflare Pages 프로젝트 준비
+        if: env.CAN_DEPLOY == 'true'
+        run: npx --yes wrangler@4 pages project create it-newsletter --production-branch=main || true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Cloudflare Pages에 배포
+        if: env.CAN_DEPLOY == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy site --project-name=it-newsletter --branch=main
