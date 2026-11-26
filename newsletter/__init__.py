@@ -36,6 +36,28 @@ class Classified:
 
 
 @dataclass
+class Item:
+    """저장할 소식 한 건. 원문 텍스트 필드가 없다 (BP-SRC-005). 형식은 데이터 설계서 3.2."""
+
+    id: str
+    section: str
+    topic: str
+    source: str
+    published_at: datetime  # KST
+    title: str
+    summary: str
+    url: str
+    score: int
+    reactions: str
+    importance: int
+
+    def to_json(self) -> dict:
+        d = dict(self.__dict__)
+        d["published_at"] = self.published_at.isoformat(timespec="seconds")
+        return d
+
+
+@dataclass
 class RunLog:
     """실행 기록. 한 줄 형식은 `<오류 코드> <대상> <설명>` (API 설계 3.3)."""
 

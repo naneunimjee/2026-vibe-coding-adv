@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 VERSION = "0.1"
-MODEL = "claude-opus-5-5"  # ADR-004
+MODEL = "gemini-3.8-flash"  # ADR-004 (2026-11-26 개정)
 USER_AGENT = f"IT-Newsletter/{VERSION} (+https://github.com/naneunimjee/2026-vibe-coding-adv)"
 HTTP_TIMEOUT = 20  # 초, API 설계 1.1
 RETRY_DELAY = 5  # 초, API 설계 1.1
@@ -41,9 +41,9 @@ class Config:
 
 
 def load() -> Config:
-    """환경 변수를 읽는다. ANTHROPIC_API_KEY가 없으면 CONFIG_MISSING으로 종료 코드 1."""
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+    """환경 변수를 읽는다. GEMINI_API_KEY가 없으면 CONFIG_MISSING으로 종료 코드 1."""
+    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
     if not api_key:
-        print("CONFIG_MISSING: ANTHROPIC_API_KEY", file=sys.stderr)
+        print("CONFIG_MISSING: GEMINI_API_KEY", file=sys.stderr)
         raise SystemExit(1)
     return Config(api_key=api_key, data_dir=Path(os.environ.get("DATA_DIR", DEFAULT_DATA_DIR)))
