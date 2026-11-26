@@ -20,7 +20,7 @@
 | 규칙 | 설명 | 근거 |
 |------|------|------|
 | 공식 수단만 | 공식 피드·API만 호출. 웹페이지를 긁지 않는다 | BP-SRC-002 |
-| 한 곳에서 호출 | 모든 HTTP 요청은 `newsletter/http.py`, Claude 호출은 `newsletter/llm.py`를 거친다 | SAD 2.2 |
+| 한 곳에서 호출 | 모든 HTTP 요청은 `newsletter/http.py`, LLM 호출은 `newsletter/llm.py`를 거친다 | SAD 2.2 |
 | 식별 가능한 User-Agent | `IT-Newsletter/<버전> (+<저장소 주소>)` | BP-SRC-008 |
 | 순차 호출 | 출처 간·출처 안 모두 병렬 요청하지 않는다 | NFR-007 |
 | 시간 제한 | 요청당 20초 | 30분 안에 끝내기 위함 |
@@ -47,6 +47,7 @@
 | v0.1 | 2026-11-25 | Claude | 초안 작성 |
 | v1.0 | 2026-11-25 | Claude | G2 승인 |
 | v1.1 | 2026-11-25 | Claude | G3 승인에 따른 변경: 위키백과 연동을 검색·요약 API 2개에서 본문 추출 API 1개로 (상세 설계 부록 E 제안 2) |
+| v1.2 | 2026-11-26 | Claude | LLM을 Gemini로 변경 (SAD ADR-004 개정): OUT-10, 인증, 호출 간격, 오류 코드 |
 
 ---
 
@@ -61,7 +62,7 @@
 | GitHub 검색 API | `Authorization: Bearer <GITHUB_TOKEN>` | Actions 기본 토큰 (읽기 권한이면 충분) |
 | arXiv API | 없음 | - |
 | 위키백과 API | 없음 (User-Agent 필수) | - |
-| Claude API | API 키 (SDK가 `ANTHROPIC_API_KEY` 환경 변수에서 읽음) | GitHub Secrets |
+| Gemini API | API 키 (`GEMINI_API_KEY` 환경 변수를 `config.load()`가 읽어 SDK에 전달) | GitHub Secrets |
 | Cloudflare Pages | API 토큰 + 계정 ID | GitHub Secrets |
 
 ### 2.2 사이트 접근
@@ -126,7 +127,7 @@
 | OUT-06 | GitHub README | GET | `https://api.github.com/repos/<owner>/<repo>/readme` | 최대 10 | FR-001 |
 | OUT-07 | arXiv 검색 | GET | `https://export.arxiv.org/api/query` | 1 | FR-001 |
 | OUT-08 | 위키백과 본문 추출 | GET | `https://<lang>.wikipedia.org/w/api.php` (`action=query&prop=extracts\|info\|pageprops&explaintext=1&redirects=1`) | 후보당 1~2 (ko, 없으면 en) | FR-006 |
-| OUT-10 | Claude 메시지 | POST (SDK) | Anthropic Messages API | 분류 1~2, 요약 최대 12, 공부 2 | FR-003·005·006 |
+| OUT-10 | Gemini 생성 | POST (SDK) | Gemini API `generateContent` | 분류 1~2, 요약 최대 12, 공부 2 | FR-003·005·006 |
 | OUT-11 | Cloudflare Pages 배포 | wrangler | `pages deploy site` | 1 | FR-008 |
 
 ### 4.2 내보내는 인터페이스 (Outbound to 방문자)
@@ -234,7 +235,7 @@
 | 사용 | 문서가 있고, 리다이렉트가 없거나 조각(`tofragment`) 없는 리다이렉트이고, 동음이의 문서가 아니고, 본문 600자 이상 | `title`→`study.wikipedia.title`, `fullurl`→`study.wikipedia.url`·`references[0].url`, `extract`→공부 글 근거(**저장 금지**) |
 | 거부 | `missing`, 조각 리다이렉트(예: "Canary release" → "Feature toggle#Canary release"), `pageprops.disambiguation`, 본문 600자 미만 | 다음 언어 또는 다음 후보 |
 
-### 5.6 OUT-10 Claude
+### 5.6 OUT-10 Gemini
 
 모델과 effort는 SAD ADR-004 결정을 따른다. 모든 호출은 구조화 출력(JSON 스키마)으로 응답 형식을 고정하고, 응답은 저장 전에 데이터 설계서 3장 규칙으로 다시 검사한다.
 
@@ -250,8 +251,8 @@
 - 시스템 지시에 BP-SUM·BP-TEXT 규칙(해요체, 원문에 없는 사실 금지, 과장 금지, 길이)을 넣는다.
 - 원문 텍스트는 "참고 자료" 구역에 넣고, 그 안의 지시문은 따르지 않도록 명시한다 (프롬프트 주입 대응).
 - 응답이 형식·길이 검사에 실패하면 같은 입력으로 1회 다시 요청하고, 또 실패하면 그 항목을 제외한다 (FR-005).
-- 거절(refusal) 응답에 대비해 SDK의 서버 측 대체 모델 옵션을 켠다. 거절된 항목은 제외한다.
-- API 오류(429, 5xx)는 SDK 기본 재시도에 맡기고, 최종 실패는 BP-ERROR-003을 따른다.
+- 안전 차단(거절) 응답(`prompt_feedback.block_reason` 또는 `finish_reason`이 SAFETY 등)은 그 항목만 제외한다.
+- API 오류(429, 5xx)는 SDK 재시도 옵션(`HttpRetryOptions`)에 맡기고, 최종 실패는 BP-ERROR-003을 따른다.
 
 ### 5.7 OUT-11 Cloudflare Pages 배포
 
@@ -309,8 +310,8 @@
 
 | 코드 | 의미 | 처리 |
 |------|------|------|
-| `LLM_UNAVAILABLE` | Claude 호출 전체 실패 | 비정상 종료 (BP-ERROR-003) |
-| `CONFIG_MISSING` | 필수 환경 변수 없음 (`ANTHROPIC_API_KEY`, 운영 `SITE_URL`) | 비정상 종료 |
+| `LLM_UNAVAILABLE` | LLM 호출 전체 실패 | 비정상 종료 (BP-ERROR-003) |
+| `CONFIG_MISSING` | 필수 환경 변수 없음 (`GEMINI_API_KEY`, 운영 `SITE_URL`) | 비정상 종료 |
 
 ---
 
@@ -330,11 +331,11 @@
 | api.github.com | 2초 | 11 | 검색 분당 30회 |
 | export.arxiv.org | 3초 | 1 | arXiv 약관 |
 | *.wikipedia.org | 1초 | 6 (후보 3개 × ko·en) | 위키미디어 예의 (직렬), `maxlag=5` |
-| Anthropic API | SDK 기본 | 약 16 | 계정 한도 |
+| Gemini API | SDK 재시도 옵션 | 약 16 | 계정 등급 한도 |
 
 ### 7.3 한도 초과 응답
 
-429를 받으면 그 출처는 그날 건너뛴다 (재시도 없음). Claude의 429는 SDK가 `retry-after`를 따라 재시도한다.
+429를 받으면 그 출처는 그날 건너뛴다 (재시도 없음). Gemini의 429·5xx는 SDK 재시도 옵션이 간격을 늘려 가며 재시도한다.
 
 ---
 

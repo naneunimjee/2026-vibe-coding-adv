@@ -25,6 +25,7 @@
 | 0.1 | 2026-11-25 | 초안 작성. G0 승인 기준선(서비스 기획서 v1.0, 비즈니스 정책서 v1.0)과 출처 이용 조건 조사(DEC-004) 반영 | Claude | - |
 | 1.0 | 2026-11-25 | G1 승인. ISSUE-01·02·03·05·06 승인 결정 반영, 기준선을 서비스 기획서 v1.1·비즈니스 정책서 v1.1로 갱신 | Claude | 임지영 |
 | 1.1 | 2026-11-25 | G2 결정 반영: NFR-011 목표값을 월 $40으로 확정, ISSUE-04 해결 | Claude | 임지영 |
+| 1.2 | 2026-11-26 | LLM을 Gemini로 변경 (SAD ADR-004 개정). 본문의 "Claude"는 사용하는 LLM(Gemini)으로 읽는다. 기술 제약·외부 인터페이스 표는 고침 | Claude | 임지영 |
 
 ---
 
@@ -176,7 +177,7 @@ graph TB
 |------|-----------|------|------|
 | Runtime | Python | 3.12 | 로컬은 프로젝트 `.venv` |
 | 템플릿 | Jinja2 | 3.1.x | 정적 HTML 생성 |
-| LLM SDK | Anthropic 공식 Python SDK (`anthropic`) | 02에서 고정 | 모델은 02에서 결정 (DEC-002) |
+| LLM SDK | Google 공식 Python SDK (`google-genai`) | 3.6.1 | 모델 `gemini-3.8-flash` (DEC-002, 2026-11-26 변경) |
 | Database | 없음 | - | 호별 JSON 파일을 저장소에 커밋 |
 | CI/CD | GitHub Actions | - | 일정 실행, 테스트, 빌드, 배포 |
 | 배포 도구 | Cloudflare wrangler (공식 GitHub Action) | 02에서 고정 | |
@@ -838,7 +839,7 @@ NFR-001, NFR-002로 관리한다. 발행이 실패해도 사이트는 직전 배
 | EXT-03 | GitHub 검색 API | 저장소 소식 수집 | HTTPS GET (JSON) | 토큰 (Actions 기본 토큰) | 인증 시 분당 30회 (검색). 발행 1회에 1~2회 요청. ISSUE-01 |
 | EXT-04 | arXiv API | 논문 소식 수집 | HTTPS GET (Atom) | 없음 | 메타데이터 CC0. 3초에 1회, 연결 1개. PDF 미보관, 초록 페이지로 링크, 보증 표현 금지 |
 | EXT-05 | 위키백과 REST API (요약) | 오늘의 공부 근거 | HTTPS GET (JSON) | 없음 | 연락처가 담긴 User-Agent 필수, 요청은 직렬로. 본문은 CC BY-SA 4.0 (ISSUE-02) |
-| EXT-06 | Claude API (Anthropic) | 분류·요약·공부 글 생성 | HTTPS (공식 Python SDK) | API 키 (GitHub Secrets) | 모델·비용 상한은 02에서 결정 (DEC-002) |
+| EXT-06 | Gemini API (Google) | 분류·요약·공부 글 생성 | HTTPS (공식 Python SDK) | API 키 (GitHub Secrets) | 모델·비용 상한은 02에서 결정 (DEC-002) |
 | EXT-07 | Cloudflare Pages | 사이트 호스팅·배포 | wrangler (공식 Action) | API 토큰·계정 ID (GitHub Secrets) | 무료 등급 |
 | EXT-08 | jsDelivr (Pretendard) | 서체 | HTTPS | 없음 | 버전 고정 URL |
 

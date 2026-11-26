@@ -43,6 +43,7 @@
 |------|------|--------|-----------|
 | v0.1 | 2026-11-25 | Claude | 초안 작성 |
 | v1.0 | 2026-11-25 | Claude | G2 승인. ADR-004 결정(claude-opus-5-5, 월 상한 $40), ADR-005~007 승인 |
+| v1.1 | 2026-11-26 | Claude | 04 구현 중 작성자 결정: LLM을 Gemini `gemini-3.8-flash`(SDK `google-genai`)로 변경 (ADR-004 개정) |
 
 ### 1.5 용어 정의
 
@@ -87,9 +88,9 @@
 | 원칙 | 설명 | 적용 방법 |
 |------|------|-----------|
 | 단계 분리 | 파이프라인 각 단계는 한 가지 일만 한다 | 수집·필터·분류·선정·요약·공부·저장을 모듈로 나누고, 단계 간에는 데이터(목록)만 넘긴다 |
-| 외부 호출 격리 | 네트워크·LLM 호출은 정해진 모듈에서만 | `http.py`(외부 HTTP 공통), `llm.py`(Claude) 두 곳으로 모아, 나머지 단계는 순수 함수로 테스트 |
+| 외부 호출 격리 | 네트워크·LLM 호출은 정해진 모듈에서만 | `http.py`(외부 HTTP 공통), `llm.py`(Gemini) 두 곳으로 모아, 나머지 단계는 순수 함수로 테스트 |
 | 실패해도 사이트는 그대로 | 부분 실패는 건너뛰고, 전체 실패는 배포하지 않는다 | BP-ERROR-001~006을 단계별 반환값과 검증으로 구현 |
-| 최소 의존성 | 꼭 필요한 패키지만 | Jinja2, Anthropic SDK 외에는 표준 라이브러리 (HTTP는 `urllib`, XML은 `xml.etree`) |
+| 최소 의존성 | 꼭 필요한 패키지만 | Jinja2, Google Gen AI SDK 외에는 표준 라이브러리 (HTTP는 `urllib`, XML은 `xml.etree`) |
 | 데이터가 단일 진실 | 화면은 데이터에서만 만든다 | 사이트는 `data/issues/*.json`만 읽어 생성. 운영자 정정도 데이터 수정으로 (FR-017) |
 | 비밀 값 분리 | 키는 코드·데이터·로그에 없다 | GitHub Secrets → 환경 변수로만 전달 |
 
@@ -111,7 +112,7 @@ graph TB
         GH["GitHub 검색 API"]
         AX["arXiv API"]
         WP["위키백과 API"]
-        CL["Claude API"]
+        CL["Gemini API"]
         CF["Cloudflare Pages"]
     end
 
@@ -166,7 +167,7 @@ graph LR
 graph TB
     MAIN["publish.py<br/>단계 순서·로그·종료 코드"]
     HTTP["http.py<br/>User-Agent, 시간 제한, 재시도, 호스트별 간격"]
-    LLM["llm.py<br/>Claude 호출, 구조화 출력, 형식 검사"]
+    LLM["llm.py<br/>Gemini 호출, 구조화 출력, 형식 검사"]
 
     subgraph 수집 FR-001
         S1["sources/geeknews.py"]
@@ -243,8 +244,8 @@ React·Next.js는 작성자 결정으로 제외했다. 상호작용이 칩 필�
 | 언어 | Python | 3.12 | 작성자 역량, Actions 기본 지원 |
 | HTTP | 표준 라이브러리 `urllib.request` | - | 의존성 최소. 요청 수가 적어 충분 |
 | XML(Atom) | 표준 라이브러리 `xml.etree.ElementTree` | - | GeekNews·arXiv Atom 파싱 |
-| LLM | Anthropic 공식 Python SDK `anthropic` | 03에서 고정 | Claude 호출의 공식 경로. 구조화 출력·재시도 내장 |
-| 모델 | `claude-opus-5-5` | - | ADR-004 승인, 월 비용 상한 $40 |
+| LLM | Google 공식 Python SDK `google-genai` | 3.6.1 | Gemini 호출의 공식 경로. 구조화 출력(JSON 스키마)·재시도 옵션 내장 |
+| 모델 | `gemini-3.8-flash` | - | ADR-004 개정 (2026-11-26) |
 | 테스트 | 표준 라이브러리 `unittest` | - | 프로토타입과 동일 |
 
 #### 평가 상세
@@ -261,7 +262,7 @@ React·Next.js는 작성자 결정으로 제외했다. 상호작용이 칩 필�
 |------|-----------|------|
 | 일정 실행·CI | GitHub Actions | 저장소와 한곳에서 관리, 무료 등급, 작성자 희망 |
 | 호스팅 | Cloudflare Pages (Direct Upload) | 무료 정적 호스팅·CDN·HTTPS, 작성자 희망 |
-| 비밀 값 | GitHub Secrets | `ANTHROPIC_API_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` |
+| 비밀 값 | GitHub Secrets | `GEMINI_API_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` |
 | 설정 값 | GitHub Variables | `SITE_URL` |
 | GitHub API 인증 | Actions 기본 `GITHUB_TOKEN` | 별도 토큰 발급 불필요 |
 
@@ -320,7 +321,7 @@ GitHub Actions가 기본 토큰으로 만든 커밋은 다른 워크플로를 �
 | 설정 | 로컬 | 운영 |
 |------|------|------|
 | `SITE_URL` | `http://localhost:8000` (기본값) | GitHub Variables (예: `https://it-newsletter.pages.dev`) |
-| `ANTHROPIC_API_KEY` | 로컬에서 발행 작업을 돌릴 때만 환경 변수로 (커밋 금지) | GitHub Secrets |
+| `GEMINI_API_KEY` | 로컬에서 발행 작업을 돌릴 때만 환경 변수로 (커밋 금지) | GitHub Secrets |
 | Cloudflare 토큰 | 사용 안 함 | GitHub Secrets |
 
 ### 4.3 CI/CD 파이프라인
@@ -386,7 +387,7 @@ tests/               # 단위·생성 테스트
 | ADR-001 | 서버 없는 일괄 작업 + 정적 사이트 | 승인 (G0 결정) | 서비스 기획서 3.1 |
 | ADR-002 | DB 대신 호별 JSON 파일 | 승인 (G0 결정) | 서비스 기획서 5.5 |
 | ADR-003 | GitHub Actions + Cloudflare Pages | 승인 (G0 결정) | 서비스 기획서 5.5 |
-| ADR-004 | Claude 모델과 월 비용 상한 | 승인 (G2) | DEC-002, ISSUE-04, NFR-011 |
+| ADR-004 | LLM 모델과 월 비용 상한 | 승인 (G2), 개정 (2026-11-26) | DEC-002, ISSUE-04, NFR-011 |
 | ADR-005 | 분류는 후보 전체를 한 번에, 요약은 선정된 소식만 | 승인 (G2) | FR-003·005, NFR-011 |
 | ADR-006 | 외부 호출은 표준 라이브러리로 직접 | 승인 (G2) | NFR-007 |
 | ADR-007 | 발행 워크플로가 커밋과 배포를 함께 수행 | 승인 (G2) | FR-008 |
@@ -427,6 +428,11 @@ tests/               # 단위·생성 테스트
 
 - **결정 (2026-11-25, G2):** 모델은 `claude-opus-5-5`, 월 비용 상한은 $40 (예상 약 $28 + 여유). 운영자는 Anthropic 콘솔에서 월 사용 한도를 $40로 설정한다. 운영 첫 주에 실제 토큰 사용량을 측정해 예상치를 갱신하고, 상한을 넘을 것 같으면 요약 원문 길이를 먼저 줄인다.
 - **함께 정할 설계:** 구조화 출력으로 형식을 강제하고, 작업 난이도에 맞춰 effort를 낮게(분류) 또는 중간(요약·공부)으로 둔다. 거절 응답에 대비해 서버 측 대체 모델 옵션을 켠다. 상한을 넘을 것 같으면 요약 원문 길이를 줄인다.
+- **개정 (2026-11-26, 작성자 결정):** LLM을 Google Gemini로 바꾼다. 작성자가 Gemini API 키를 GitHub Secrets(`GEMINI_API_KEY`)에 등록했다.
+  - 모델: `gemini-3.8-flash` (최신 안정판 Flash, 무료 등급 있음. 유료 가격 입력 $0.75 / 출력 $3.75 per 100만 토큰 → 위 사용량 기준 월 약 $5 이하). 월 상한 $40은 그대로 둔다.
+  - SDK: `google-genai` 3.6.1. 구조화 출력은 `response_mime_type="application/json"` + `response_json_schema`.
+  - 생각 깊이: `thinking_level`로 분류 `low`, 요약·공부 `medium` (effort 대응).
+  - Gemini에는 서버 측 대체 모델 옵션이 없으므로, 안전 차단(거절) 응답은 그 항목만 제외한다 (`LLM_REFUSED`).
 
 #### ADR-005: 분류는 후보 전체를 한 번에, 요약은 선정된 소식만
 
@@ -539,7 +545,7 @@ Cloudflare Pages가 담당한다. 별도 이중화 없음.
 | 연동 | 패턴 | 실패 처리 |
 |------|------|-----------|
 | 출처 4곳 | 요청-응답, 순차 | 출처 단위 건너뛰기 (BP-ERROR-001) |
-| Claude | SDK 요청-응답, 구조화 출력 | 항목 단위 제외, 전체 실패 시 발행 중단 (BP-ERROR-003) |
+| Gemini | SDK 요청-응답, 구조화 출력 | 항목 단위 제외, 전체 실패 시 발행 중단 (BP-ERROR-003) |
 | 위키백과 | 요청-응답, 후보 순서대로 | 다음 후보로, 모두 실패 시 공부 없이 (BP-ERROR-004) |
 | Cloudflare | 업로드 | 실패 시 다음 실행이나 수동 재실행 |
 
@@ -567,7 +573,7 @@ Cloudflare Pages가 담당한다. 별도 이중화 없음.
 |------|------|
 | 언어 | Python 3.12 |
 | 화면 | Jinja2 3.1.4, 디자인 시스템 CSS, 바닐라 JS, Pretendard |
-| LLM | Anthropic Python SDK, `claude-opus-5-5` (ADR-004) |
+| LLM | Google Gen AI SDK, `gemini-3.8-flash` (ADR-004) |
 | 데이터 | JSON 파일 (Git) |
 | CI·일정 | GitHub Actions |
 | 호스팅 | Cloudflare Pages |
