@@ -39,6 +39,7 @@ jobs:
         run: python build.py
         env:
           SITE_URL: ${{ vars.SITE_URL }}
+          GA_ID: ${{ vars.GA_ID }}
 
       # Cloudflare 비밀 값·SITE_URL을 모두 등록하기 전에는 이 단계를 건너뛰어요.
       - name: Cloudflare Pages에 배포
