@@ -103,6 +103,9 @@ class BuildTest(unittest.TestCase):
     def test_feed_uses_site_url(self):
         self.assertIn("<link>https://example.test/issue/3/</link>", self.read("feed.xml"))
 
+    def test_no_analytics_without_ga_id(self):
+        self.assertNotIn("googletagmanager", self.read("index.html"))
+
 
 class BuildGuardTest(unittest.TestCase):
     def setUp(self):
@@ -150,6 +153,22 @@ class BuildGuardTest(unittest.TestCase):
             build.site_url_from_env(production=True)
         with mock.patch.dict(os.environ, {"SITE_URL": "https://it-newsletter.pages.dev/", "CI": ""}):
             self.assertEqual(build.site_url_from_env(production=True), "https://it-newsletter.pages.dev")
+
+    def test_ga_tag_on_every_page(self):
+        write_issues(self.data, three_issues())
+        build.build(self.root / "site", data_dir=self.data, ga_id="G-ABC123XYZ")
+        for page in PAGES:
+            html = (self.root / "site" / page).read_text(encoding="utf-8")
+            self.assertIn("googletagmanager.com/gtag/js?id=G-ABC123XYZ", html, page)
+            self.assertIn("gtag('config', 'G-ABC123XYZ')", html, page)
+
+    def test_ga_id_from_env(self):
+        with mock.patch.dict(os.environ, {"GA_ID": " G-ABC123XYZ "}):
+            self.assertEqual(build.ga_id_from_env(), "G-ABC123XYZ")
+        with mock.patch.dict(os.environ, {"GA_ID": ""}):
+            self.assertEqual(build.ga_id_from_env(), "")
+        with mock.patch.dict(os.environ, {"GA_ID": "G-1');alert(1);//"}), self.assertRaises(SystemExit):
+            build.ga_id_from_env()
 
 
 if __name__ == "__main__":

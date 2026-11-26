@@ -3,11 +3,13 @@
 사용법: python build.py [--production] [출력 폴더]
 환경 변수 SITE_URL: RSS에 들어갈 사이트 주소 (예: https://it-newsletter.pages.dev).
 --production 또는 CI 환경에서는 https 주소가 꼭 있어야 한다 (FR-015-AC2).
+환경 변수 GA_ID: Google Analytics 4 측정 ID (예: G-XXXXXXXXXX). 없으면 분석 태그를 넣지 않는다.
 """
 from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import sys
 from collections import Counter
@@ -60,6 +62,13 @@ def site_url_from_env(production: bool) -> str:
             sys.exit("CONFIG_MISSING: SITE_URL (https 주소가 필요해요)")
         return url
     return url or "http://localhost:8000"
+
+
+def ga_id_from_env() -> str:
+    ga_id = os.environ.get("GA_ID", "").strip()
+    if ga_id and not re.fullmatch(r"G-[A-Z0-9]+", ga_id):
+        sys.exit("CONFIG_INVALID: GA_ID (G-XXXXXXXXXX 형식이어야 해요)")
+    return ga_id
 
 
 def tokens_css(tokens: dict) -> str:
@@ -154,7 +163,7 @@ def rss(issues: list[dict], site_url: str) -> str:
     )
 
 
-def build(out: Path, data_dir: Path = ROOT / "data" / "issues", site_url: str = "") -> None:
+def build(out: Path, data_dir: Path = ROOT / "data" / "issues", site_url: str = "", ga_id: str = "") -> None:
     issues = load_issues(data_dir)
     latest = issues[0]
     env = make_env()
@@ -180,7 +189,7 @@ def build(out: Path, data_dir: Path = ROOT / "data" / "issues", site_url: str = 
     ]
 
     def render(rel: str, template: str, active: str, **ctx) -> None:
-        html = env.get_template(template).render(nav=nav, active=active, sources=sources, latest=latest, repo_issues=REPO_ISSUES, **ctx)
+        html = env.get_template(template).render(nav=nav, active=active, sources=sources, latest=latest, repo_issues=REPO_ISSUES, ga_id=ga_id, **ctx)
         write(out, rel, html)
 
     # 1. 홈 + 호별 페이지 (홈은 최신 호)
@@ -229,5 +238,5 @@ if __name__ == "__main__":
     production = "--production" in args
     paths = [a for a in args if a != "--production"]
     target = Path(paths[0]) if paths else ROOT / "site"
-    build(target, site_url=site_url_from_env(production))
+    build(target, site_url=site_url_from_env(production), ga_id=ga_id_from_env())
     print(f"사이트를 만들었어요: {target}")

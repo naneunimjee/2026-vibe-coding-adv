@@ -53,6 +53,7 @@ jobs:
         run: python build.py --production
         env:
           SITE_URL: ${{ vars.SITE_URL }}
+          GA_ID: ${{ vars.GA_ID }}
 
       # 프로젝트가 이미 있으면 만들기가 실패하는데, 그건 괜찮아요.
       - name: Cloudflare Pages 프로젝트 준비
