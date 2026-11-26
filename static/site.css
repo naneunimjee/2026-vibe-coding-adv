@@ -192,3 +192,8 @@ body { margin: 0; background: var(--bg); color: var(--text-primary); font-family
 [hidden] { display: none !important; }
 .nl-toast--floating { position: fixed; left: 50%; bottom: 32px; z-index: 20; transform: translate(-50%, 16px); opacity: 0; pointer-events: none; transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1), transform 320ms cubic-bezier(0.16, 1, 0.3, 1); }
 .nl-toast--floating.is-on { opacity: 1; transform: translate(-50%, 0); }
+.nl-pager a:last-child { text-align: left; }
+.nl-pager a.nl-pager__next { text-align: right; }
+.nl-license, .nl-notice { margin: var(--space-6) 0 0; font-size: 13px; line-height: 1.6; color: var(--text-tertiary); }
+.nl-notice { text-align: center; }
+.nl-license a, .nl-notice a { color: var(--text-link); }

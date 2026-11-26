@@ -21,6 +21,7 @@
         {%- endfor %}
       </ul>
       {% endif %}
+      <p class="nl-license">이 글은 위키백과 '<a href="{{ study.wikipedia.url }}" target="_blank" rel="noopener">{{ study.wikipedia.title }}</a>' 문서를 참고해 작성했어요. 위키백과 글은 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.ko" target="_blank" rel="noopener">CC BY-SA 4.0</a> 라이선스를 따라요.</p>
     </article>
     <section class="nl-study">
       <span class="nl-study__eyebrow">요점 정리</span>
@@ -28,8 +29,8 @@
     </section>
     {% if prev or next %}
     <nav class="nl-pager" aria-label="다른 주제">
-      {% if prev %}<a href="/study/{{ prev.slug }}/"><span>이전 주제</span><strong>{{ prev.title }}</strong></a>{% else %}<span></span>{% endif %}
-      {% if next %}<a href="/study/{{ next.slug }}/"><span>다음 주제</span><strong>{{ next.title }}</strong></a>{% endif %}
+      {% if prev %}<a href="/study/{{ prev.slug }}/"><span>이전 주제</span><strong>{{ prev.title }}</strong></a>{% endif %}
+      {% if next %}<a{% if prev %} class="nl-pager__next"{% endif %} href="/study/{{ next.slug }}/"><span>다음 주제</span><strong>{{ next.title }}</strong></a>{% endif %}
     </nav>
     {% endif %}
   </div>

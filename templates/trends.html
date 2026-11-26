@@ -8,14 +8,16 @@
     <h1 class="nl-pagetitle__title">IT 트렌드</h1>
     <p class="nl-pagetitle__desc">개발자 커뮤니티에서 많이 이야기된 기술과 도구를 모았어요.</p>
   </div>
+  {% if items %}
   <div class="nl-chips" style="margin-bottom:16px" role="group" aria-label="주제 필터">
     <button class="nl-chip is-active" type="button" data-topic="" aria-pressed="true">전체 {{ items | length }}</button>
     {%- for topic, count in topics %}
     <button class="nl-chip" type="button" data-topic="{{ topic }}" aria-pressed="false">{{ topic }} {{ count }}</button>
     {%- endfor %}
   </div>
+  {% endif %}
   <section class="nl-card">
-    {% for item in items %}{{ news(item) }}{% endfor %}
+    {% for item in items %}{{ news(item, issue.date) }}{% else %}<p class="nl-news__summary" style="padding:24px">오늘은 트렌드 소식이 없어요</p>{% endfor %}
   </section>
 </main>
 {% endblock %}

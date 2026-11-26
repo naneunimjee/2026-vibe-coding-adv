@@ -12,8 +12,10 @@
     {% for group in groups %}
     <section class="nl-card">
       <div class="nl-section-header"><div>{% if loop.first %}<span class="nl-section-header__eyebrow">최신 호</span>{% endif %}<h2 class="nl-section-header__title">{{ group.date | date_ko }}</h2></div><a class="nl-section-header__action" href="/issue/{{ group.number }}/">제{{ group.number }}호</a></div>
-      {% for item in group["items"] %}{{ news(item) }}{% endfor %}
+      {% for item in group["items"] %}{{ news(item, group.date) }}{% endfor %}
     </section>
+    {% else %}
+    <section class="nl-card"><p class="nl-news__summary" style="padding:24px">최근에 올라온 이슈가 없어요</p></section>
     {% endfor %}
   </div>
 </main>

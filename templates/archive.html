@@ -16,11 +16,11 @@
   <div class="nl-card">
     {% for issue in issues %}
     {% set topics = issue["items"] | map(attribute="topic") | unique | list %}
-    <a class="nl-issue" href="/issue/{{ issue.number }}/" data-search="{{ issue.number }} {{ issue.headline }} {{ issue.study.title }} {{ topics | join(' ') }} {{ issue['items'] | map(attribute='title') | join(' ') }}">
+    <a class="nl-issue" href="/issue/{{ issue.number }}/" data-search="{{ issue.number }} {{ issue.headline }} {{ issue.study.title if issue.study else '' }} {{ topics | join(' ') }} {{ issue['items'] | map(attribute='title') | join(' ') }}">
       <div><span class="nl-issue__no">제{{ issue.number }}호</span><span class="nl-issue__date">{{ issue.date | date_dot }}</span></div>
       <div>
         <h3 class="nl-issue__title">{{ issue.headline }}</h3>
-        <div class="nl-issue__tags">{% for t in topics[:2] %}{{ badge(t, "brand" if loop.first else "neutral") }}{% endfor %}{{ badge("오늘의 공부 · " ~ issue.study.title) }}</div>
+        <div class="nl-issue__tags">{% for t in topics[:2] %}{{ badge(t, "brand" if loop.first else "neutral") }}{% endfor %}{% if issue.study %}{{ badge("오늘의 공부 · " ~ issue.study.title) }}{% endif %}</div>
       </div>
       <span class="nl-issue__count">소식 {{ issue["items"] | length }}건</span>
     </a>

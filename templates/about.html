@@ -19,6 +19,7 @@
   <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:48px">
     {% for s in sources %}<span class="nl-chip">{{ s }}</span>{% endfor %}
   </div>
+  <p class="nl-notice">각 출처는 이 서비스를 보증하거나 운영하지 않아요. 요약은 자동으로 만들어져 틀릴 수 있으니 중요한 내용은 원문에서 확인해 주세요. 소식 삭제 요청은 <a href="{{ repo_issues }}" target="_blank" rel="noopener">GitHub 이슈</a>로 받아요.</p>
 </main>
 {% include "_toast.html" %}
 {% endblock %}

@@ -6,10 +6,10 @@
 <span class="nl-badge nl-badge--{{ kind }}">{{ text }}</span>
 {%- endmacro %}
 
-{# 소식 한 건. show_badge: 분류 뱃지를 붙일지 #}
-{% macro news(item, show_badge=true) -%}
+{# 소식 한 건. issue_date: 시각 표시 기준 날짜 (BP-TEXT-004), show_badge: 분류 뱃지를 붙일지 #}
+{% macro news(item, issue_date, show_badge=true) -%}
 <article class="nl-news" data-topic="{{ item.topic }}">
-  <div class="nl-news__meta">{% if show_badge %}{{ badge(item.topic, "brand" if item.section == "trend" else "neutral") }}{% endif %}<span>{{ item.source }} · {{ item.published_at | time_hm }}</span></div>
+  <div class="nl-news__meta">{% if show_badge %}{{ badge(item.topic, "brand" if item.section == "trend" else "neutral") }}{% endif %}<span>{{ item.source }} · {{ item.published_at | time_ko(issue_date) }}{% if item.reactions %} · {{ item.reactions }}{% endif %}</span></div>
   <h3 class="nl-news__title">{{ item.title }}</h3>
   <p class="nl-news__summary">{{ item.summary }}</p>
   <a class="nl-news__link" href="{{ item.url }}" target="_blank" rel="noopener">원문 보기{{ chevron() }}</a>
