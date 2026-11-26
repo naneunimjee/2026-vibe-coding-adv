@@ -1,0 +1,9 @@
+{
+  "_note": "실제 API 응답 구조를 본뜬 테스트용 예시. 내용은 지어낸 것.",
+  "total_count": 3,
+  "items": [
+    {"full_name": "owner/fast-tool", "description": "A fast example CLI tool", "html_url": "https://github.com/owner/fast-tool", "created_at": "2026-11-25T23:00:00Z", "stargazers_count": 3120},
+    {"full_name": "owner/no-desc", "description": null, "html_url": "https://github.com/owner/no-desc", "created_at": "2026-11-25T22:00:00Z", "stargazers_count": 80},
+    {"full_name": "owner/old-repo", "description": "Created before the window", "html_url": "https://github.com/owner/old-repo", "created_at": "2026-11-24T00:00:00Z", "stargazers_count": 999}
+  ]
+}

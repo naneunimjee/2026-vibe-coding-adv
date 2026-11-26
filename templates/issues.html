@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_macros.html" import news %}
+{% block title %}IT 이슈{% endblock %}
+{% block main %}
+<main class="nl-container nl-main" style="max-width:820px">
+  <div class="nl-pagetitle">
+    <span class="nl-pagetitle__eyebrow">최근 {{ groups | length }}개 호 · {{ groups | sum(attribute="count") }}건</span>
+    <h1 class="nl-pagetitle__title">IT 이슈</h1>
+    <p class="nl-pagetitle__desc">보안 사고, 장애, 정책 변화처럼 개발자가 알고 있어야 할 일을 날짜순으로 모았어요.</p>
+  </div>
+  <div class="nl-gap">
+    {% for group in groups %}
+    <section class="nl-card">
+      <div class="nl-section-header"><div>{% if loop.first %}<span class="nl-section-header__eyebrow">최신 호</span>{% endif %}<h2 class="nl-section-header__title">{{ group.date | date_ko }}</h2></div><a class="nl-section-header__action" href="/issue/{{ group.number }}/">제{{ group.number }}호</a></div>
+      {% for item in group["items"] %}{{ news(item, group.date) }}{% endfor %}
+    </section>
+    {% else %}
+    <section class="nl-card"><p class="nl-news__summary" style="padding:24px">최근에 올라온 이슈가 없어요</p></section>
+    {% endfor %}
+  </div>
+</main>
+{% endblock %}

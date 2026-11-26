@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "_macros.html" import news %}
+{% block title %}IT 트렌드{% endblock %}
+{% block main %}
+<main class="nl-container nl-main" style="max-width:820px">
+  <div class="nl-pagetitle">
+    <span class="nl-pagetitle__eyebrow">제{{ issue.number }}호 · 오늘 {{ items | length }}건</span>
+    <h1 class="nl-pagetitle__title">IT 트렌드</h1>
+    <p class="nl-pagetitle__desc">개발자 커뮤니티에서 많이 이야기된 기술과 도구를 모았어요.</p>
+  </div>
+  {% if items %}
+  <div class="nl-chips" style="margin-bottom:16px" role="group" aria-label="주제 필터">
+    <button class="nl-chip is-active" type="button" data-topic="" aria-pressed="true">전체 {{ items | length }}</button>
+    {%- for topic, count in topics %}
+    <button class="nl-chip" type="button" data-topic="{{ topic }}" aria-pressed="false">{{ topic }} {{ count }}</button>
+    {%- endfor %}
+  </div>
+  {% endif %}
+  <section class="nl-card">
+    {% for item in items %}{{ news(item, issue.date) }}{% else %}<p class="nl-news__summary" style="padding:24px">오늘은 트렌드 소식이 없어요</p>{% endfor %}
+  </section>
+</main>
+{% endblock %}
+{% block scripts %}
+<script>
+  var chips = document.querySelectorAll('.nl-chip[data-topic]');
+  chips.forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      var topic = chip.dataset.topic;
+      chips.forEach(function (c) { c.classList.toggle('is-active', c === chip); c.setAttribute('aria-pressed', c === chip); });
+      document.querySelectorAll('.nl-news').forEach(function (row) { row.hidden = topic !== '' && row.dataset.topic !== topic; });
+    });
+  });
+</script>
+{% endblock %}

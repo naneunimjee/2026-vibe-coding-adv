@@ -4,9 +4,28 @@ This file provides guidance to AI coding agents when working with code in this r
 
 ## Project status
 
-The repository currently contains only `README.md` — no code, build system, dependencies, or tests exist yet. When the first code is added, update this file with real build/run/test commands and architecture notes; do not assume a stack until it is chosen.
+A daily IT newsletter published as a **static website** (not email): IT trends, IT issues, and a "today's study topic". The site must have at least 5 pages; it has 6 (home, trends, issues, study, archive, about). Pipeline: collect (GeekNews, Hacker News, GitHub search API, arXiv) → dedupe/filter → LLM classify, rank, and summarize in Korean (summaries grounded only in fetched source text, always with the original link) → write `data/issues/<date>.json` → build the site → deploy. The LLM is Gemini `gemini-3.8-flash` via `google-genai` (SAD ADR-004, revised 2026-11-26). `data/issues/` starts empty; tests use `tests/sample_data.py`.
 
-Planned project: a daily IT newsletter service (IT trends, issues, and a "today's study topic"), discussed as a pipeline of collect (RSS/APIs such as GeekNews, Hacker News, GitHub Trending, arXiv) → dedupe/filter → LLM classify, rank, and summarize in Korean (summaries grounded only in fetched source text, always with the original link) → render the email → send on a daily schedule. The intended first milestone is an MVP that delivers to the author only, before adding subscriber features. Treat this as direction, not a fixed spec — confirm stack choices with the user before implementing.
+Stack (chosen with the user): Python + Jinja2 static generation, GitHub Actions for build/schedule, Cloudflare Pages for hosting. The user does not want Next.js/React.
+
+### Commands
+
+```
+pip install -r requirements.txt
+python build.py                        # writes site/ (SITE_URL env sets RSS links; required https with --production or CI)
+GEMINI_API_KEY=... python -m newsletter.publish --dry-run   # real collect + LLM, prints the issue JSON without saving
+python -m unittest discover -s tests   # offline: sources, filtering, LLM steps (mocked), issue validation, site build
+python -m http.server -d site 8000     # preview at http://localhost:8000
+```
+
+### Layout
+
+- `newsletter/` — publish job (`python -m newsletter.publish`): sources → filtering → classify → ranking → summarize → study → issue_store. Exit codes 0 ok, 1 config, 2 no items, 3 invalid issue, 4 LLM unavailable.
+- `build.py` — loads and validates `data/issues/*.json` with `issue_store.validate` (newest `number` = home), renders `templates/`, generates `static/tokens.css` from `design/tokens.json`, writes `feed.xml`.
+- `templates/` — `base.html` (header/footer/nav), one template per page, `_macros.html`, `_toast.html`.
+- `static/site.css` — copy of the design system's `components/bundle.css` plus a few site-only rules at the end. Design system artifact: https://claude.ai/artifact/D1jHCFGWMkQTcqQgAj9KKv (Toss TDS-based, from `docs/DESIGN.md`).
+- `.github/workflows/publish.yml` — daily 08:00 KST + manual: publish → commit `data/issues` → test → build → deploy. `deploy.yml` — on push/PR: test → build → deploy (main only). Deploy needs secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` and variable `SITE_URL`; publish needs secret `GEMINI_API_KEY`.
+- `waterfall/` — project documents following the waterfall process. Phases 00–03 (planning → detailed design) are written and approved (G0–G3, recorded in `waterfall/08-검토/단계별검토-체크리스트.md`); phase 04 handover is drafted (`waterfall/04-구현/구현-테스트-인계서.md`, G4 pending); 05–07 are still blank templates. Code should follow `waterfall/03-상세설계/상세설계서.md` (module layout under `newsletter/`).
 
 The user communicates in Korean; respond in Korean.
 

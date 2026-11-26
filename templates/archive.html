@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block title %}지난 호{% endblock %}
+{% block main %}
+<main class="nl-container nl-main" style="max-width:900px">
+  <div class="nl-pagetitle">
+    <span class="nl-pagetitle__eyebrow">지금까지 {{ issues | length }}호</span>
+    <h1 class="nl-pagetitle__title">지난 호</h1>
+    <p class="nl-pagetitle__desc">놓친 날의 소식을 호수나 키워드로 찾아볼 수 있어요.</p>
+  </div>
+  <label class="nl-field" id="search-field" style="margin-bottom:24px">
+    <span class="nl-field__label">지난 호 검색</span>
+    <input class="nl-field__input" id="search" type="search" placeholder="주제나 키워드를 입력해 주세요" autocomplete="off" style="background:var(--bg-layered)">
+    <span class="nl-field__help" id="search-help" hidden></span>
+  </label>
+  <div class="nl-card">
+    {% for issue in issues %}
+    {% set topics = issue["items"] | map(attribute="topic") | unique | list %}
+    <a class="nl-issue" href="/issue/{{ issue.number }}/" data-search="{{ issue.number }} {{ issue.headline }} {{ issue.study.title if issue.study else '' }} {{ topics | join(' ') }} {{ issue['items'] | map(attribute='title') | join(' ') }}">
+      <div><span class="nl-issue__no">제{{ issue.number }}호</span><span class="nl-issue__date">{{ issue.date | date_dot }}</span></div>
+      <div>
+        <h3 class="nl-issue__title">{{ issue.headline }}</h3>
+        <div class="nl-issue__tags">{% for t in topics[:2] %}{{ badge(t, "brand" if loop.first else "neutral") }}{% endfor %}{% if issue.study %}{{ badge("오늘의 공부 · " ~ issue.study.title) }}{% endif %}</div>
+      </div>
+      <span class="nl-issue__count">소식 {{ issue["items"] | length }}건</span>
+    </a>
+    {% endfor %}
+    <p class="nl-news__summary" id="search-empty" style="padding:24px" hidden>찾는 호가 없어요. 다른 키워드로 검색해 주세요.</p>
+  </div>
+</main>
+{% endblock %}
+{% block scripts %}
+<script>
+  var input = document.getElementById('search'), field = document.getElementById('search-field');
+  var help = document.getElementById('search-help'), empty = document.getElementById('search-empty');
+  var rows = document.querySelectorAll('.nl-issue');
+  input.addEventListener('input', function () {
+    var q = input.value.trim().toLowerCase();
+    var tooShort = q.length === 1;
+    field.classList.toggle('is-error', tooShort);
+    help.hidden = !tooShort;
+    help.textContent = tooShort ? '두 글자 이상 입력해 주세요.' : '';
+    var shown = 0;
+    rows.forEach(function (row) {
+      var match = q.length < 2 || row.dataset.search.toLowerCase().indexOf(q) !== -1;
+      row.hidden = !match;
+      if (match) shown++;
+    });
+    empty.hidden = shown !== 0;
+  });
+</script>
+{% endblock %}
