@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- 실제 피드 구조를 본뜬 테스트용 예시. 내용은 지어낸 것. -->
+<feed xmlns='http://www.w3.org/2005/Atom'>
+<title>GeekNews</title>
+<id>https://news.hada.io/rss/news</id>
+<updated>2026-11-26T09:00:00+09:00</updated>
+<entry>
+  <title><![CDATA[예시 토픽: 새 빌드 도구 1.0 출시]]></title>
+  <link rel='alternate' type='text/html' href='https://news.hada.io/topic?id=10002&amp;utm_source=geeknews&amp;utm_medium=rss' />
+  <id>https://news.hada.io/topic?id=10002</id>
+  <updated>2026-11-26T08:30:00+09:00</updated>
+  <published>2026-11-26T08:30:00+09:00</published>
+  <content type='html' xml:lang='ko'><![CDATA[<div><p>예시 빌드 도구가 1.0을 냈습니다.</p><ul><li>설정 파일 없이 &amp; 바로 실행</li></ul></div>]]></content>
+</entry>
+<entry>
+  <title><![CDATA[예시 토픽: 수집 기간 밖의 글]]></title>
+  <link rel='alternate' type='text/html' href='https://news.hada.io/topic?id=10001&amp;utm_source=geeknews' />
+  <id>https://news.hada.io/topic?id=10001</id>
+  <updated>2026-11-24T08:00:00+09:00</updated>
+  <published>2026-11-24T08:00:00+09:00</published>
+  <content type='html'><![CDATA[<p>오래된 글</p>]]></content>
+</entry>
+</feed>

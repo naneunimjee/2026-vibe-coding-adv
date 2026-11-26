@@ -1,0 +1,12 @@
+{
+  "_note": "실제 API 응답 구조를 본뜬 테스트용 예시. 내용은 지어낸 것.",
+  "topstories": [1, 2, 3, 4, 5, 6],
+  "items": {
+    "1": {"id": 1, "type": "story", "time": 1795654800, "title": "Example article", "url": "https://blog.example.com/post", "score": 412},
+    "2": {"id": 2, "type": "story", "time": 1795654800, "title": "Ask HN: Example question", "text": "<p>Question &amp; details</p>", "score": 30},
+    "3": {"id": 3, "type": "story", "time": 1795654800, "title": "Example repo", "url": "https://github.com/owner/tool", "score": 90},
+    "4": {"id": 4, "type": "job", "time": 1795654800, "title": "Hiring", "url": "https://jobs.example.com"},
+    "5": {"id": 5, "type": "story", "time": 1795000000, "title": "Too old", "url": "https://old.example.com", "score": 5},
+    "6": {"id": 6, "type": "story", "time": 1795654800, "title": "Plain http link", "url": "http://insecure.example.com", "score": 7}
+  }
+}

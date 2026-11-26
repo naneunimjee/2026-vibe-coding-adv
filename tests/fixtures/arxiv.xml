@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- 실제 응답 구조를 본뜬 테스트용 예시. 내용은 지어낸 것. -->
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/example</id>
+  <title>arXiv Query</title>
+  <entry>
+    <id>http://arxiv.org/abs/2611.00001v2</id>
+    <title>An Example Paper
+      About Testing</title>
+    <updated>2026-11-26T00:10:00Z</updated>
+    <published>2026-11-25T23:50:00Z</published>
+    <summary>  This abstract is
+      made up for tests.  </summary>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2611.00000v1</id>
+    <title>Old Paper</title>
+    <published>2026-11-20T00:00:00Z</published>
+    <summary>Outside the window.</summary>
+  </entry>
+</feed>

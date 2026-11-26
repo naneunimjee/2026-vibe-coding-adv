@@ -1,6 +1,8 @@
 """HTML 원문 페이지에서 요약 입력으로 쓸 텍스트를 뽑는다 (CHK-04)."""
 from __future__ import annotations
 
+import html as html_lib
+import re
 from html.parser import HTMLParser
 
 SKIP_TAGS = {"script", "style", "nav", "header", "footer", "aside", "noscript", "svg", "form", "button"}
@@ -24,6 +26,11 @@ def page_text(html: str) -> str:
         if len(value) >= MIN_META_CHARS:
             return value
     return ""  # → ORIGINAL_UNAVAILABLE
+
+
+def plain_text(fragment: str) -> str:
+    """피드·API가 준 짧은 HTML 조각의 태그를 지운 텍스트 (API 설계 5.1·5.2 "HTML 태그 제거")."""
+    return " ".join(html_lib.unescape(re.sub(r"<[^>]+>", " ", fragment)).split())
 
 
 class _PageParser(HTMLParser):

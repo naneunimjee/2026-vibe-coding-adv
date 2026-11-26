@@ -18,6 +18,11 @@ SUMMARY_MAX_CHARS = 200  # BP-SUM-002
 STUDY_BODY_MIN, STUDY_BODY_MAX = 600, 1500  # BP-STUDY-005
 SOURCE_TEXT_MAX_CHARS = 20000  # 요약 입력 상한 (약 6천 토큰)
 EXCERPT_CHARS = 1000  # 분류 입력 (ADR-005)
+HN_TOP_STORIES = 30  # OUT-03: 상위 30건만
+GITHUB_MIN_STARS, GITHUB_MAX_REPOS = 50, 10  # OUT-05
+README_MAX_CHARS = 4000  # OUT-06: README 앞 4,000자
+ARXIV_CATEGORIES = ("cs.AI", "cs.CL", "cs.LG", "cs.SE")  # OUT-07
+ARXIV_MAX_RESULTS = 20  # OUT-07
 # 호스트별 최소 요청 간격(초). 키는 호스트 끝부분과 비교하고, 없으면 "*" 값을 쓴다.
 HOST_MIN_INTERVAL = {
     "hacker-news.firebaseio.com": 0.2,
