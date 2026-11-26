@@ -2,7 +2,7 @@
   "schema_version": 1,
   "number": 1,
   "date": "2026-11-26",
-  "collected_at": "2026-11-26T19:31:53+09:00",
+  "collected_at": "2026-11-26T19:40:26+09:00",
   "headline": "오늘은 보안 소식이 가장 많았어요",
   "highlight": "보안",
   "summary": "트렌드 8건, 이슈 4건, 오늘의 공부 1개를 골랐어요.",
@@ -15,10 +15,10 @@
       "source": "Hacker News",
       "published_at": "2026-11-26T05:35:50+09:00",
       "title": "리눅스 커널 NFS 서버에서 발견된 12년 된 사전 인증 원격 루트 취약점",
-      "summary": "리눅스 커널의 NFS 서버(nfsd)에서 원격 루트 셸을 획득할 수 있는 사전 인증 힙 오버플로 취약점 CVE-2026-99362가 발견되었어요. Linux 3.16 이후 12년 동안 영향을 미쳤으며, Linux 6.12.117, 6.18.61, 7.3.2, 7.4-rc1 버전에서 수정되었어요.",
+      "summary": "리눅스 커널의 NFS 서버 nfsd에서 원격 루트 권한을 획득할 수 있는 힙 오버플로 취약점 CVE-2026-99362가 발견되었어요. 2014년 Linux 3.16부터 존재해 온 이 문제는 NFSv4.1 또는 4.2 환경에 영향을 줘요. Linux 6.12.117, 6.18.61, 7.3.2, 7.4-rc1 버전에서 수정되어 커널 업데이트가 필요해요.",
       "url": "https://opensec.in/blog/nfs2root-cve-2026-99362",
-      "score": 150,
-      "reactions": "포인트 150점",
+      "score": 152,
+      "reactions": "포인트 152점",
       "importance": 5
     },
     {
@@ -27,11 +27,11 @@
       "topic": "보안",
       "source": "Hacker News",
       "published_at": "2026-11-26T02:18:26+09:00",
-      "title": "1Password 보안 사고",
-      "summary": "1Password는 공격자가 직원의 GitHub 계정에 접근해 고객 관리 데이터를 다운로드한 정황을 조사했다고 밝혔어요. 고객 금고 콘텐츠는 침해되지 않았으며, 노출 위험이 있는 내부 자격 증명을 교체하고 보안 조치를 강화했어요.",
+      "title": "1Password 보안 침해 사고",
+      "summary": "1Password는 공격자가 직원의 GitHub 계정에 접근해 일부 고객의 이름과 이메일 등이 포함된 관리 데이터를 내려받은 사건을 조사 중이에요. 공격자가 소스 코드와 CI/CD 시스템에 접근했으나 고객 보관함 콘텐츠에는 전혀 접근하지 못했어요. 1Password는 영향받은 계정을 비활성화하고 노출 가능성이 있는 모든 내부 자격 증명을 교체했어요.",
       "url": "https://1password.com/blog/update-on-nov-2026-security-incident",
-      "score": 1444,
-      "reactions": "포인트 1,444점",
+      "score": 1446,
+      "reactions": "포인트 1,446점",
       "importance": 4
     },
     {
@@ -41,36 +41,10 @@
       "source": "Hacker News",
       "published_at": "2026-11-26T05:38:00+09:00",
       "title": "느린 우분투 보안 대응 시간",
-      "summary": "우분투가 NoisyTCP(CVE-2026-99288) 및 KVM 호스트 탈출 등 심각한 보안 결함에 대한 패치를 신속히 내놓지 못하고 있어요. 다른 배포판과 달리 며칠 또는 몇 주씩 수정이 지연되고 있어요. 작성자는 우분투가 구버전 커널에 패치를 백포팅하는 전략 대신 kernel.org의 장기 지원 릴리스를 기반으로 삼아야 한다고 봐요.",
+      "summary": "우분투가 NoisyTCP와 KVM 호스트 이스케이프 등 심각한 보안 취약점 발표 후에도 수일 동안 패치를 내놓지 못하고 있어요. 이전 원격 TCP 손상 취약점 역시 패치까지 수주가 걸렸어요. 작성자는 커널 패치 백포팅 방식의 실효성에 의문을 제기하며 장기 지원 릴리스 기반 사용을 제안해요.",
       "url": "https://www.openwall.com/lists/oss-security/2026/11/25/9",
-      "score": 295,
-      "reactions": "포인트 295점",
-      "importance": 4
-    },
-    {
-      "id": "hn:50648365",
-      "section": "trend",
-      "topic": "AI",
-      "source": "Hacker News",
-      "published_at": "2026-11-26T07:15:34+09:00",
-      "title": "베어메탈 환경에서 구동되는 Qwen 기반 독립형 x86-64 운영체제",
-      "summary": "리눅스나 윈도우, C, Rust 없이 하드웨어나 KVM에서 Qwen/Qwen3-0.6B를 직접 실행하는 독립형 부팅 OS예요. 약 24KB 크기의 커널로 74~94ms 만에 콜드 부팅되어 멀티턴 대화를 지원해요. 2MiB 휴지 페이지를 활용해 메모리 매핑을 최적화하며 QEMU KVM 환경 16 vCPU에서 134.9 tok/s 디코드 성능을 보여줘요.",
-      "url": "https://github.com/alesha-pro/llm.asm/tree/main/02-baremetal-os",
-      "score": 154,
-      "reactions": "포인트 154점",
-      "importance": 4
-    },
-    {
-      "id": "hn:50650892",
-      "section": "trend",
-      "topic": "개발 도구",
-      "source": "Hacker News",
-      "published_at": "2026-11-26T12:00:48+09:00",
-      "title": "Minipg: 단일 실행 파일로 동작하는 PostgreSQL",
-      "summary": "minipg는 서버 설정 없이 바로 실행할 수 있는 단일 실행 파일 형태의 PostgreSQL이에요. Docker Hub의 postgres:18-alpine 이미지를 포함하며 h9를 사용해 호스트 하이퍼바이저에서 구동돼요. 데이터와 설정은 .pgdb 디렉터리에 저장되며 명령 실행 시 서버가 시작되고 유휴 상태가 되면 자동으로 종료돼요.",
-      "url": "https://progrium.github.io/minipg/",
-      "score": 136,
-      "reactions": "포인트 136점",
+      "score": 297,
+      "reactions": "포인트 297점",
       "importance": 4
     },
     {
@@ -80,21 +54,8 @@
       "source": "GeekNews",
       "published_at": "2026-11-26T16:03:51+09:00",
       "title": "Hex.pm 보안 사고 발생",
-      "summary": "hex.pm의 비인증 요청 처리 취약점으로 공격자가 웹 서버 6대에서 명령을 실행했어요. 패키지 변조나 데이터베이스 변경 흔적은 없었으나 개인정보와 인증 정보 열람 가능성은 배제할 수 없어요. 공격 발생 후 20분 안에 트래픽 차단과 수정 배포를 진행했어요.",
+      "summary": "hex.pm의 비인증 요청 처리 취약점으로 공격자가 웹 서버 6대에서 명령을 실행하는 사고가 발생했어요. 2026년 11월 23일 공격 발생 후 20분 안에 트래픽 차단과 수정 배포를 진행했으며, 패키지 변조나 데이터베이스 변경 흔적은 발견되지 않았어요. 다만 읽기 로그가 없어 개인정보와 인증 정보 열람 가능성은 배제할 수 없어요.",
       "url": "https://news.hada.io/topic?id=37884&utm_source=geeknews&utm_medium=rss&utm_campaign=news",
-      "score": 0,
-      "reactions": "",
-      "importance": 4
-    },
-    {
-      "id": "gn:37860",
-      "section": "trend",
-      "topic": "개발 도구",
-      "source": "GeekNews",
-      "published_at": "2026-11-26T09:30:02+09:00",
-      "title": "Relax - Rust 코드를 바로 실행하고 수정 사항을 반영하는 JIT 컴파일러",
-      "summary": "전체 빌드를 기다리지 않고 Rust 프로그램을 실행하는 개발 도구예요. 함수를 처음 호출할 때 컴파일하고 실행 중 함수를 수정하면 상태를 유지한 채 새 코드로 교체해 줘요. 대형 3D 게임 개발 사례에서 M4 MacBook으로 첫 화면까지 11초, 캐시가 있는 다음 실행은 1.15초에 처리했어요.",
-      "url": "https://news.hada.io/topic?id=37860&utm_source=geeknews&utm_medium=rss&utm_campaign=news",
       "score": 0,
       "reactions": "",
       "importance": 4
@@ -102,11 +63,11 @@
     {
       "id": "ax:2611.34875",
       "section": "trend",
-      "topic": "AI",
+      "topic": "개발 도구",
       "source": "arXiv",
       "published_at": "2026-11-26T03:37:06+09:00",
-      "title": "코딩 에이전트의 과도한 수정 분석: 레포지토리 수준 패치 내 불필요한 편집에 관한 실증 연구",
-      "summary": "연구진은 에이전트 패치의 불필요한 편집을 판별하는 DRA를 18개 프론티어 모델의 7,660개 궤적에 적용했어요. 에이전트 코드는 개발자 코드만큼 필수적이었으나, SWE-bench Verified 기준 코드 단위의 11%는 여전히 불필요했고 이 중 89%는 동작을 바꿨어요. 벤치마크에 해결률과 함께 코드 필수성을 보고할 것을 권장해요.",
+      "title": "코딩 에이전트의 과도한 수정 분석: 레포지토리 수준 패치 내 불필요한 편집 연구",
+      "summary": "연구진은 최종 패치의 불필요한 수정을 분석하는 DRA 기법을 제안하고 18개 프론티어 모델의 궤적에 적용했어요. 에이전트 패치는 개발자보다 많은 줄을 수정하지만 코드의 필요성은 개발자와 대등하거나 더 높은 수준으로 나타났어요. 모델별로 코드 필요성 차이가 크며 SWE-bench Verified 패치 코드의 11%는 여전히 불필요한 수정으로 확인되었어요.",
       "url": "https://arxiv.org/abs/2611.34875",
       "score": 0,
       "reactions": "",
@@ -115,14 +76,27 @@
     {
       "id": "hn:50646108",
       "section": "trend",
-      "topic": "AI",
+      "topic": "연구",
       "source": "Hacker News",
       "published_at": "2026-11-26T04:11:27+09:00",
-      "title": "지금 벌어지고 있는 일들의 규모",
-      "summary": "OpenAI와 Anthropic 등 AI 기업들이 행렬 곱셈 지수와 푸리에 변환 복잡도 같은 난제의 증명을 연이어 내놓고 있어요. 저자는 문제들이 Lean 증명과 함께 해결되고 있어 P ≠ NP 증명도 머지않았다고 느껴진다고 전했어요. 또한 AI 연구소들이 기존 암호 체계를 무너뜨릴 알고리즘을 보유하고 있을 가능성도 언급했어요.",
+      "title": "AI 연구 기관들의 연이은 수학 난제 증명과 계산 복잡도 이론의 급변",
+      "summary": "OpenAI와 Anthropic 등 AI 기업들이 행렬 곱셈 지수 및 푸리에 변환 계산 복잡도 등 수학 난제를 해결했다고 발표했어요. 저자는 Lean 인증서를 통해 증명이 뒷받침되며 P ≠ NP 해결도 머지않았다고 느낀다고 전했어요. 현재 나타나는 성과들이 계산 복잡도 분야의 AI 특이점과 유사한 양상이라고 평가했어요.",
       "url": "https://scottaaronson.blog/?p=10379",
-      "score": 1567,
-      "reactions": "포인트 1,567점",
+      "score": 1571,
+      "reactions": "포인트 1,571점",
+      "importance": 3
+    },
+    {
+      "id": "gh:lsernau/grh-lean",
+      "section": "trend",
+      "topic": "연구",
+      "source": "GitHub",
+      "published_at": "2026-11-26T05:42:55+09:00",
+      "title": "Lean 4 기반 일반화 리만 가설 증명 코드 공개",
+      "summary": "Lean 4와 Mathlib을 활용해 디리클레 L-함수에 대한 일반화 리만 가설을 증명한 연구 결과물이 공개되었어요. Anthropic 동료 및 Claude와의 협업으로 제작되었으며 약 30만 줄과 7만 6천 줄 버전으로 나뉘어요. 이 증명은 기계 검증만 통과했으며 수학자가 전부 검토하지는 않았어요.",
+      "url": "https://github.com/lsernau/grh-lean",
+      "score": 663,
+      "reactions": "스타 663개",
       "importance": 3
     },
     {
@@ -131,11 +105,37 @@
       "topic": "개발 도구",
       "source": "GitHub",
       "published_at": "2026-11-26T04:40:33+09:00",
-      "title": "Claude Code, Codex, Cursor를 위한 무료 프론트엔드 디자인 스킬 uxpilot-ai/frontend-design-skill",
-      "summary": "Claude Code, Codex, Cursor를 위한 무료 프론트엔드 디자인 스킬이에요. UX Pilot 캔버스에서 UI를 디자인한 뒤 이를 코드에 빌드해 줘요.",
+      "title": "UX Pilot 캔버스에서 UI를 디자인하고 코드로 구현하는 프런트엔드 디자인 스킬",
+      "summary": "Claude Code, Codex, Cursor 등에서 사용할 수 있는 무료 프런트엔드 디자인 스킬이에요. 코드베이스를 분석해 UX Pilot 캔버스에서 화면을 디자인하고 편집할 수 있도록 지원해요. 사용자가 선택한 디자인을 기존 컴포넌트와 토큰을 활용해 실제 코드로 구현해 줘요.",
       "url": "https://github.com/uxpilot-ai/frontend-design-skill",
       "score": 188,
       "reactions": "스타 188개",
+      "importance": 3
+    },
+    {
+      "id": "hn:50648365",
+      "section": "trend",
+      "topic": "AI",
+      "source": "Hacker News",
+      "published_at": "2026-11-26T07:15:34+09:00",
+      "title": "베어메탈 환경에서 직접 실행되는 Qwen 운영체제",
+      "summary": "리눅스나 윈도우 없이 하드웨어와 KVM에서 Qwen3-0.6B를 직접 구동하는 독립형 x86-64 운영체제예요. 24,252바이트 크기의 커널을 갖추었으며 74~94ms 만에 콜드 부팅돼요. 디스크 없이 RAM 위에서 전체 시스템과 모델이 동작해요.",
+      "url": "https://github.com/alesha-pro/llm.asm/tree/main/02-baremetal-os",
+      "score": 156,
+      "reactions": "포인트 156점",
+      "importance": 3
+    },
+    {
+      "id": "hn:50650892",
+      "section": "trend",
+      "topic": "개발 도구",
+      "source": "Hacker News",
+      "published_at": "2026-11-26T12:00:48+09:00",
+      "title": "Minipg: 단일 실행 파일 형태의 PostgreSQL",
+      "summary": "minipg는 서버 설정 없이 바로 쓸 수 있는 단일 실행 파일 형태의 PostgreSQL이에요. Docker Hub의 postgres:18-alpine 이미지를 내장해 h9 라이브러리로 호스트 하이퍼바이저에서 구동해요. 데이터와 설정이 담긴 .pgdb 디렉터리를 사용하며 명령이 필요할 때 서버가 켜지고 유휴 상태면 자동으로 멈춰요.",
+      "url": "https://progrium.github.io/minipg/",
+      "score": 139,
+      "reactions": "포인트 139점",
       "importance": 3
     },
     {
@@ -144,74 +144,71 @@
       "topic": "연구",
       "source": "Hacker News",
       "published_at": "2026-11-26T13:59:56+09:00",
-      "title": "준지수 시간 내의 무조건적 정수 소인수분해",
-      "summary": "입력된 모든 정수를 준지수 시간 내에 소인수분해하는 무조건적 라스베이거스 알고리즘이 제시되었어요. 증명 전체는 Lean 4(v4.35.0)로 공식화되었으며, 논문과 형식화는 Gemini 4 기반 에이전트 프레임워크인 Cogentic이 도출했어요. 초기 프롬프트 입력을 제외하고는 인간의 개입이 전혀 없었어요.",
+      "title": "준지수 시간 내의 무조건적 정수 인수분해",
+      "summary": "단일 고정 균일 고전 다중 테이프 튜링 기계에서 모든 정수의 완전 소인수분해를 계산하는 무조건적 제로 에러 라스베이거스 알고리즘이 구성되었어요. 이 논문과 Lean 4 형식화는 Gemini 4 기반의 수학적 발견 프레임워크인 Cogentic이 초기 프롬프트 외에 인간의 개입 없이 완전히 도출해 냈어요.",
       "url": "https://github.com/google-research/google-research/tree/4a7bc8ab0bc770e71a259b7966c500496b99010a/cogentic_research_papers/integer_factorization",
-      "score": 43,
-      "reactions": "포인트 43점",
+      "score": 44,
+      "reactions": "포인트 44점",
       "importance": 3
     },
     {
-      "id": "gn:37880",
+      "id": "gn:37870",
       "section": "trend",
       "topic": "AI",
       "source": "GeekNews",
-      "published_at": "2026-11-26T14:35:14+09:00",
-      "title": "과학자들은 인공지능 에이전트의 허용 범위를 어디까지 정해야 할까",
-      "summary": "Ai2의 Kyle Wiggers가 과학자 17명을 대상으로 AI 에이전트의 책임 있는 개발에 대해 인터뷰했어요. 연구에서 에이전트의 활용 지점과 위험 요소, 필요한 안전장치를 조사했지요. 연구 업무를 AI에 맡기더라도 업무 진행에 대한 과학자의 책임은 사라지지 않는다고 해요.",
-      "url": "https://news.hada.io/topic?id=37880&utm_source=geeknews&utm_medium=rss&utm_campaign=news",
+      "published_at": "2026-11-26T10:50:02+09:00",
+      "title": "우리가 알던 기능 발견 방식의 종말",
+      "summary": "AI는 사용자가 원하는 결과를 말하면 필요한 기능을 골라 실행해 기능을 직접 찾을 필요를 줄여줘요. 소프트웨어를 조작하는 주체가 사람에서 AI로 옮겨가고 있어요. 에이전트가 API와 MCP로 다른 제품의 기능을 호출하면 사용자가 해당 앱을 열지 않아도 돼요.",
+      "url": "https://news.hada.io/topic?id=37870&utm_source=geeknews&utm_medium=rss&utm_campaign=news",
       "score": 0,
       "reactions": "",
       "importance": 3
     }
   ],
   "study": {
-    "slug": "heap-overflow",
-    "title": "힙 오버플로",
-    "summary": "힙 오버플로는 동적으로 할당된 힙 영역의 경계를 넘어 데이터를 덮어쓰는 보안 취약점이에요.",
-    "read_minutes": 3,
+    "slug": "formal-verification",
+    "title": "형식 검증",
+    "summary": "형식 검증은 수학적 모델을 사용해 시스템이 사양에 맞게 동작하는지 엄밀하게 증명하거나 반증하는 기법이에요.",
+    "read_minutes": 2,
     "points": [
-      "동적 메모리 영역에서 발생하며 메타데이터나 포인터를 변조해요.",
-      "데이터 오염을 일으키거나 조작된 흐름으로 임의 코드를 실행해요.",
-      "ASLR과 NX 비트 및 메모리 할당자 검사로 공격을 방어해요."
+      "수학적 기법을 사용해 하드웨어와 소프트웨어의 정확성을 증명해요.",
+      "CompCert 컴파일러나 seL4 커널 등 고신뢰성 시스템에 쓰여요.",
+      "보안 평가 기준인 공통평가기준에서 최고 보증 수준(EAL7)을 달성해요."
     ],
     "sections": [
       {
-        "heading": "힙 오버플로는 무엇인가요?",
+        "heading": "형식 검증이란 무엇인가요",
         "paragraphs": [
-          "애플리케이션이 실행 중에 동적으로 메모리를 확보해 사용하는 힙 공간에서 발생하는 버퍼 오버플로 현상이에요. 스택 버퍼 오버플로와 다르게 프로그램 데이터와 동적 할당 메타데이터가 모여 있는 힙 영역을 대상으로 삼아요.",
-          "힙 내부에 위치한 특정 버퍼의 크기를 벗어나는 쓰기 작업이 일어나면 바로 옆에 붙어 있는 다른 메모리 영역이나 연결 리스트 포인터 같은 내부 제어 데이터가 망가져요. 과거 리눅스 환경에서는 malloc으로 관리되는 메타데이터를 덮어써서 인접 버퍼를 통합할 때 함수 포인터를 변조하는 수법이 자주 쓰였어요."
+          "형식 검증은 하드웨어나 소프트웨어 시스템이 정해진 사양을 올바르게 충족하는지 수학적인 기법으로 증명하거나 반증하는 절차를 뜻해요. 시스템이 의도한 명세대로 정확하게 동작함을 확증하는 것이 주된 목적이에요. 이는 전자 설계 자동화 분야에서 분석과 검증을 담당하는 핵심적인 축이며, 소프트웨어의 신뢰성을 입증하는 대표적인 접근법으로 꼽혀요. 보안 평가 기준인 공통평가기준 프레임워크에서도 가장 높은 평가 보증 수준인 EAL7을 달성하기 위해 공식 검증 절차가 쓰여요."
         ]
       },
       {
-        "heading": "어떤 문제가 발생하나요?",
+        "heading": "어디에 주로 활용되나요",
         "paragraphs": [
-          "실수로 메모리 경계를 넘어서는 버그가 생기면 동일한 메모리를 공유하는 프로세스 내 데이터가 망가지고 비정상적인 동작을 일으켜요. 메모리 보호가 갖춰지지 않은 환경에서는 시스템 전체 프로세스에 나쁜 영향을 주기도 해요.",
-          "공격자가 이를 악용하면 조작된 데이터를 주입해 원격에서 임의의 코드를 실행시킬 수 있어요. 마이크로소프트의 JPEG 처리 구성요소 취약점이나 모바일 운영체제의 탈옥 과정에서 커널 권한을 얻는 데 쓰인 사례가 대표적이에요. 최근 리눅스 커널의 네트워크 파일 시스템 서비스에서도 인증 전 힙 오버플로로 관리자 셸 권한이 탈취되는 심각한 문제가 드러나기도 했어요."
+          "이 검증 방식은 보안과 안정성이 필수적인 다양한 시스템에 광범위하게 적용돼요. 암호화 프로토콜이나 조합 회로, 내부 메모리를 갖춘 디지털 회로의 동작을 확인하는 데 유용하게 쓰여요. 또한 프로그래밍 언어로 작성된 소프트웨어 소스 코드의 오류 유무를 가려낼 때도 널리 활용돼요. 대표적인 적용 사례로는 수학적으로 정확성이 입증된 CompCert C 컴파일러와 높은 보증 수준을 자랑하는 seL4 운영체제 커널이 있어요. 최근 연구 현장에서는 인공지능이 증명한 복잡도 이론이나 수학적 주장의 정확성을 뒷받침하기 위해 린(Lean)과 같은 검증 도구의 인증서를 활용하기도 해요."
         ]
       },
       {
-        "heading": "어떻게 방어할 수 있나요?",
+        "heading": "어떤 방식으로 모델링하나요",
         "paragraphs": [
-          "운영체제와 메모리 관리자는 다양한 보호 기법을 도입해 위험을 줄여요. 실행 권한이 없는 메모리 영역의 코드 실행을 차단하는 NX 비트나 윈도우의 데이터 실행 방지 기술을 활용해 주입된 명령어가 동작하지 못하도록 막아요.",
-          "또한 주소 공간 배치 난수화(ASLR)를 적용해 힙 메모리의 위치를 매번 무작위로 바꾸어 공격자가 대상 주소를 정확히 예측하지 못하게 해요. 더불어 메모리 할당 해제 시 포인터의 유효성을 따져보는 안전한 링크 해제 검사나 헤더 쿠키, 메타데이터 난수화 기법 등을 적용해 손상된 힙 구조를 감지하고 프로세스를 안전하게 종료시켜요."
+          "시스템 검증은 해당 대상을 설명하는 수학적 모델을 구축하고 공식적인 증거를 도출하는 과정을 거쳐요. 이를 위해 유한 상태 기계나 레이블이 부여된 전환 시스템, 페트리 넷과 같은 수학적 개념들을 사용해요. 이 밖에도 혼 절, 벡터 추가 시스템, 시간 제한 오토마타, 하이브리드 오토마타, 프로세스 대수 등이 시스템의 성질을 표현하는 도구로 쓰여요. 프로그래밍 언어 자체의 정확성을 다룰 때는 연산 의미론, 표시 의미론, 공리적 의미론이나 호어 논리와 같은 형식 의미론적 체계를 바탕으로 삼아 검증을 이어가요."
         ]
       }
     ],
     "references": [
       {
-        "title": "위키백과: 힙 오버플로",
-        "url": "https://ko.wikipedia.org/wiki/%ED%9E%99_%EC%98%A4%EB%B2%84%ED%94%8C%EB%A1%9C"
+        "title": "위키백과: 형식 검증",
+        "url": "https://ko.wikipedia.org/wiki/%ED%98%95%EC%8B%9D_%EA%B2%80%EC%A6%9D"
       },
       {
-        "title": "리눅스 커널 NFS 서버에서 발견된 12년 된 사전 인증 원격 루트 취약점",
-        "url": "https://opensec.in/blog/nfs2root-cve-2026-99362"
+        "title": "AI 연구 기관들의 연이은 수학 난제 증명과 계산 복잡도 이론의 급변",
+        "url": "https://scottaaronson.blog/?p=10379"
       }
     ],
     "wikipedia": {
       "lang": "ko",
-      "title": "힙 오버플로",
-      "url": "https://ko.wikipedia.org/wiki/%ED%9E%99_%EC%98%A4%EB%B2%84%ED%94%8C%EB%A1%9C"
+      "title": "형식 검증",
+      "url": "https://ko.wikipedia.org/wiki/%ED%98%95%EC%8B%9D_%EA%B2%80%EC%A6%9D"
     }
   }
 }
