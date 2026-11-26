@@ -23,7 +23,7 @@ python -m http.server -d site 8000     # preview at http://localhost:8000
 - `templates/` — `base.html` (header/footer/nav), one template per page, `_macros.html`, `_toast.html`.
 - `static/site.css` — copy of the design system's `components/bundle.css` plus a few site-only rules at the end. Design system artifact: https://claude.ai/artifact/D1jHCFGWMkQTcqQgAj9KKv (Toss TDS-based, from `docs/DESIGN.md`).
 - `.github/workflows/deploy.yml` — test → build → `wrangler pages deploy` (skipped until `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` secrets exist). Daily cron is commented out until the collector exists.
-- `waterfall/` — blank waterfall document templates, unrelated to the code.
+- `waterfall/` — project documents following the waterfall process. Phases 00–03 (planning → detailed design) are written and approved (G0–G3, recorded in `waterfall/08-검토/단계별검토-체크리스트.md`); phases 04–07 are still blank templates. Code should follow `waterfall/03-상세설계/상세설계서.md` (module layout under `newsletter/`).
 
 The user communicates in Korean; respond in Korean.
 
