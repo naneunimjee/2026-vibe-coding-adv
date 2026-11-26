@@ -2,49 +2,101 @@
   "schema_version": 1,
   "number": 1,
   "date": "2026-11-26",
-  "collected_at": "2026-11-26T19:40:26+09:00",
+  "collected_at": "2026-11-26T19:46:53+09:00",
   "headline": "오늘은 보안 소식이 가장 많았어요",
   "highlight": "보안",
   "summary": "트렌드 8건, 이슈 4건, 오늘의 공부 1개를 골랐어요.",
   "read_minutes": 5,
   "items": [
     {
+      "id": "hn:50644817",
+      "section": "issue",
+      "topic": "보안",
+      "source": "Hacker News",
+      "published_at": "2026-11-26T02:18:26+09:00",
+      "title": "1Password 보안 사고 안내",
+      "summary": "공격자가 직원의 회사 GitHub 계정에 접근해 소스 코드와 일부 고객 관리 데이터를 다운로드했어요. 유출된 데이터에는 이름과 이메일 등이 포함되었으나 고객 볼트 콘텐츠에는 접근하지 못했어요. 1Password는 영향을 받은 계정을 비활성화하고 노출 위험이 있는 자격 증명을 교체했어요.",
+      "url": "https://1password.com/blog/update-on-nov-2026-security-incident",
+      "score": 1447,
+      "reactions": "포인트 1,447점",
+      "importance": 5
+    },
+    {
       "id": "hn:50647161",
       "section": "issue",
       "topic": "보안",
       "source": "Hacker News",
       "published_at": "2026-11-26T05:35:50+09:00",
-      "title": "리눅스 커널 NFS 서버에서 발견된 12년 된 사전 인증 원격 루트 취약점",
-      "summary": "리눅스 커널의 NFS 서버 nfsd에서 원격 루트 권한을 획득할 수 있는 힙 오버플로 취약점 CVE-2026-99362가 발견되었어요. 2014년 Linux 3.16부터 존재해 온 이 문제는 NFSv4.1 또는 4.2 환경에 영향을 줘요. Linux 6.12.117, 6.18.61, 7.3.2, 7.4-rc1 버전에서 수정되어 커널 업데이트가 필요해요.",
+      "title": "리눅스 커널 NFS 서버에서 발견된 12년 된 인증 전 원격 루트 취약점",
+      "summary": "리눅스 커널의 NFS 서버(nfsd)에서 인증 전 힙 오버플로 취약점인 CVE-2026-99362가 발견되었어요. Linux 3.16부터 12년간 존재했으며 tcp/2049를 통해 원격 루트 셸을 획득할 수 있어요. 이 문제는 Linux 6.12.117, 6.18.61, 7.3.2, 7.4-rc1 버전에서 패치되었어요.",
       "url": "https://opensec.in/blog/nfs2root-cve-2026-99362",
       "score": 152,
       "reactions": "포인트 152점",
       "importance": 5
     },
     {
-      "id": "hn:50644817",
-      "section": "issue",
-      "topic": "보안",
-      "source": "Hacker News",
-      "published_at": "2026-11-26T02:18:26+09:00",
-      "title": "1Password 보안 침해 사고",
-      "summary": "1Password는 공격자가 직원의 GitHub 계정에 접근해 일부 고객의 이름과 이메일 등이 포함된 관리 데이터를 내려받은 사건을 조사 중이에요. 공격자가 소스 코드와 CI/CD 시스템에 접근했으나 고객 보관함 콘텐츠에는 전혀 접근하지 못했어요. 1Password는 영향받은 계정을 비활성화하고 노출 가능성이 있는 모든 내부 자격 증명을 교체했어요.",
-      "url": "https://1password.com/blog/update-on-nov-2026-security-incident",
-      "score": 1446,
-      "reactions": "포인트 1,446점",
+      "id": "gh:uxpilot-ai/frontend-design-skill",
+      "section": "trend",
+      "topic": "개발 도구",
+      "source": "GitHub",
+      "published_at": "2026-11-26T04:40:33+09:00",
+      "title": "Claude Code, Codex, Cursor를 위한 무료 프론트엔드 디자인 스킬: UX Pilot 기반 UI 디자인 및 코드 구현",
+      "summary": "UX Pilot의 무료 프론트엔드 디자인 스킬은 Claude Code, Codex, Cursor 등 MCP를 지원하는 에이전트에서 작동해요. 코드베이스 정보를 바탕으로 UX Pilot 캔버스에서 UI 화면을 디자인하고 수정할 수 있는 링크를 제공해요. 사용자가 선택한 화면을 기존 컴포넌트를 활용해 코드로 직접 빌드해 줘요.",
+      "url": "https://github.com/uxpilot-ai/frontend-design-skill",
+      "score": 188,
+      "reactions": "스타 188개",
       "importance": 4
     },
     {
-      "id": "hn:50647181",
-      "section": "issue",
-      "topic": "보안",
+      "id": "hn:50648365",
+      "section": "trend",
+      "topic": "AI",
       "source": "Hacker News",
-      "published_at": "2026-11-26T05:38:00+09:00",
-      "title": "느린 우분투 보안 대응 시간",
-      "summary": "우분투가 NoisyTCP와 KVM 호스트 이스케이프 등 심각한 보안 취약점 발표 후에도 수일 동안 패치를 내놓지 못하고 있어요. 이전 원격 TCP 손상 취약점 역시 패치까지 수주가 걸렸어요. 작성자는 커널 패치 백포팅 방식의 실효성에 의문을 제기하며 장기 지원 릴리스 기반 사용을 제안해요.",
-      "url": "https://www.openwall.com/lists/oss-security/2026/11/25/9",
-      "score": 297,
-      "reactions": "포인트 297점",
+      "published_at": "2026-11-26T07:15:34+09:00",
+      "title": "베어메탈 환경에서 실행되는 Qwen 운영체제",
+      "summary": "리눅스나 C 언어 없이 x86-64 하드웨어 및 KVM에서 Qwen3-0.6B를 직접 실행하는 단독 부팅 운영체제예요. 약 24KB 크기의 정적 커널과 모델이 RAM에서 직접 구동되어 별도의 하드디스크가 필요하지 않아요. 74~94ms 만에 콜드 부팅되어 대화형 멀티턴 채팅을 시작할 수 있어요.",
+      "url": "https://github.com/alesha-pro/llm.asm/tree/main/02-baremetal-os",
+      "score": 157,
+      "reactions": "포인트 157점",
+      "importance": 4
+    },
+    {
+      "id": "hn:50650892",
+      "section": "trend",
+      "topic": "개발 도구",
+      "source": "Hacker News",
+      "published_at": "2026-11-26T12:00:48+09:00",
+      "title": "Minipg: 단일 실행 파일로 제공되는 PostgreSQL",
+      "summary": "minipg는 서버 설정 없이 바로 사용할 수 있는 단일 실행 파일 형태의 PostgreSQL이에요. 명령 실행 시 서버가 시작되고 유휴 상태가 되면 자동으로 중지되며, 데이터와 설정은 .pgdb 디렉터리에 저장돼요. Docker Hub의 postgres:18-alpine 이미지를 내장하고 h9를 통해 호스트 하이퍼바이저에서 직접 구동해요.",
+      "url": "https://progrium.github.io/minipg/",
+      "score": 139,
+      "reactions": "포인트 139점",
+      "importance": 4
+    },
+    {
+      "id": "hn:50653477",
+      "section": "issue",
+      "topic": "정책",
+      "source": "Hacker News",
+      "published_at": "2026-11-26T18:44:23+09:00",
+      "title": "구글, AI 에이전트에 자사 MCP 서버 사용 의무화 및 이메일 발송 제한",
+      "summary": "구글은 2027년 2월 1일부터 AI 에이전트가 워크스페이스에 접근할 때 자사 MCP 서버를 사용하도록 규정을 변경해요. 일반 공개된 Gmail MCP 서버는 메일 검색과 초안 생성만 가능하고 전송이나 수정 기능은 파트너에게만 제공돼요. 워크스페이스 데이터로 구축한 임베딩 등 기술 정보의 보관 기간도 30일로 제한돼요.",
+      "url": "https://techstackups.com/articles/google-workspace-ai-agents-mcp/",
+      "score": 4,
+      "reactions": "포인트 4점",
+      "importance": 4
+    },
+    {
+      "id": "gn:37891",
+      "section": "trend",
+      "topic": "AI",
+      "source": "GeekNews",
+      "published_at": "2026-11-26T19:33:17+09:00",
+      "title": "베어메탈 Qwen - 순수 어셈블리 24KB OS에서 Qwen3-0.6B 실행",
+      "summary": "Linux나 Windows 없이 24,252바이트 정적 커널로 Qwen3-0.6B를 직접 구동하는 x86-64 OS예요. 74~94ms 만에 부팅되어 대화할 수 있으며, KV 캐시를 유지하는 다중 턴 채팅을 지원해요. AMD EPYC 7642 환경 16 vCPU 기준 약 134.9토큰/초의 디코딩 성능을 기록했어요.",
+      "url": "https://news.hada.io/topic?id=37891&utm_source=geeknews&utm_medium=rss&utm_campaign=news",
+      "score": 0,
+      "reactions": "",
       "importance": 4
     },
     {
@@ -54,7 +106,7 @@
       "source": "GeekNews",
       "published_at": "2026-11-26T16:03:51+09:00",
       "title": "Hex.pm 보안 사고 발생",
-      "summary": "hex.pm의 비인증 요청 처리 취약점으로 공격자가 웹 서버 6대에서 명령을 실행하는 사고가 발생했어요. 2026년 11월 23일 공격 발생 후 20분 안에 트래픽 차단과 수정 배포를 진행했으며, 패키지 변조나 데이터베이스 변경 흔적은 발견되지 않았어요. 다만 읽기 로그가 없어 개인정보와 인증 정보 열람 가능성은 배제할 수 없어요.",
+      "summary": "hex.pm의 비인증 요청 처리 취약점으로 공격자가 웹 서버 6대에서 명령을 실행했어요. 공격 발생 후 20분 안에 트래픽 차단과 수정 배포가 진행되었으며 패키지 변조 등은 발견되지 않았어요. 다만 데이터베이스 읽기 로그가 없어 개인정보와 인증 정보 열람 가능성은 배제할 수 없어요.",
       "url": "https://news.hada.io/topic?id=37884&utm_source=geeknews&utm_medium=rss&utm_campaign=news",
       "score": 0,
       "reactions": "",
@@ -66,8 +118,8 @@
       "topic": "개발 도구",
       "source": "arXiv",
       "published_at": "2026-11-26T03:37:06+09:00",
-      "title": "코딩 에이전트의 과도한 수정 분석: 레포지토리 수준 패치 내 불필요한 편집 연구",
-      "summary": "연구진은 최종 패치의 불필요한 수정을 분석하는 DRA 기법을 제안하고 18개 프론티어 모델의 궤적에 적용했어요. 에이전트 패치는 개발자보다 많은 줄을 수정하지만 코드의 필요성은 개발자와 대등하거나 더 높은 수준으로 나타났어요. 모델별로 코드 필요성 차이가 크며 SWE-bench Verified 패치 코드의 11%는 여전히 불필요한 수정으로 확인되었어요.",
+      "title": "코딩 에이전트의 과도한 수정 규모와 원인에 관한 실증적 연구",
+      "summary": "연구진은 DRA 기법을 통해 에이전트 패치 내 불필요한 수정 여부를 분석했어요. 에이전트 코드는 개발자만큼 필수적인 편이었으나 SWE-bench Verified 기준 코드 단위의 11%는 여전히 불필요했어요. 에이전트가 볼 수 있는 테스트로 불필요한 코드를 가지치기하면 89%의 패치가 여전히 작업을 해결했어요.",
       "url": "https://arxiv.org/abs/2611.34875",
       "score": 0,
       "reactions": "",
@@ -79,11 +131,11 @@
       "topic": "연구",
       "source": "Hacker News",
       "published_at": "2026-11-26T04:11:27+09:00",
-      "title": "AI 연구 기관들의 연이은 수학 난제 증명과 계산 복잡도 이론의 급변",
-      "summary": "OpenAI와 Anthropic 등 AI 기업들이 행렬 곱셈 지수 및 푸리에 변환 계산 복잡도 등 수학 난제를 해결했다고 발표했어요. 저자는 Lean 인증서를 통해 증명이 뒷받침되며 P ≠ NP 해결도 머지않았다고 느낀다고 전했어요. 현재 나타나는 성과들이 계산 복잡도 분야의 AI 특이점과 유사한 양상이라고 평가했어요.",
+      "title": "지금 벌어지고 있는 일의 엄청난 규모",
+      "summary": "최근 OpenAI와 Anthropic 등은 리만 가설, VP ≠ VNP, 행렬 곱셈 지수 ω=9/4 규명 등 주요 난제에 대한 증명을 연이어 발표했어요. 저자는 Lean 인증을 갖춘 수학적 증명이 쏟아지는 현재 상황이 AI 특이점의 시작처럼 느껴진다고 전했어요.",
       "url": "https://scottaaronson.blog/?p=10379",
-      "score": 1571,
-      "reactions": "포인트 1,571점",
+      "score": 1574,
+      "reactions": "포인트 1,574점",
       "importance": 3
     },
     {
@@ -92,106 +144,54 @@
       "topic": "연구",
       "source": "GitHub",
       "published_at": "2026-11-26T05:42:55+09:00",
-      "title": "Lean 4 기반 일반화 리만 가설 증명 코드 공개",
-      "summary": "Lean 4와 Mathlib을 활용해 디리클레 L-함수에 대한 일반화 리만 가설을 증명한 연구 결과물이 공개되었어요. Anthropic 동료 및 Claude와의 협업으로 제작되었으며 약 30만 줄과 7만 6천 줄 버전으로 나뉘어요. 이 증명은 기계 검증만 통과했으며 수학자가 전부 검토하지는 않았어요.",
+      "title": "일반화된 리만 가설에 대한 짧은 Lean 4 증명",
+      "summary": "Anthropic 동료들과 Claude의 협업을 통해 Dirichlet L-함수의 일반화된 리만 가설을 Lean 4로 증명했어요. 약 300,000줄과 약 76,000줄의 두 가지 판본으로 제공돼요. 현재 기계 검증만 통과한 상태이며 수학자가 전체를 검토하지는 않았어요.",
       "url": "https://github.com/lsernau/grh-lean",
-      "score": 663,
-      "reactions": "스타 663개",
+      "score": 665,
+      "reactions": "스타 665개",
       "importance": 3
     },
     {
-      "id": "gh:uxpilot-ai/frontend-design-skill",
-      "section": "trend",
-      "topic": "개발 도구",
-      "source": "GitHub",
-      "published_at": "2026-11-26T04:40:33+09:00",
-      "title": "UX Pilot 캔버스에서 UI를 디자인하고 코드로 구현하는 프런트엔드 디자인 스킬",
-      "summary": "Claude Code, Codex, Cursor 등에서 사용할 수 있는 무료 프런트엔드 디자인 스킬이에요. 코드베이스를 분석해 UX Pilot 캔버스에서 화면을 디자인하고 편집할 수 있도록 지원해요. 사용자가 선택한 디자인을 기존 컴포넌트와 토큰을 활용해 실제 코드로 구현해 줘요.",
-      "url": "https://github.com/uxpilot-ai/frontend-design-skill",
-      "score": 188,
-      "reactions": "스타 188개",
-      "importance": 3
-    },
-    {
-      "id": "hn:50648365",
+      "id": "hn:50652184",
       "section": "trend",
       "topic": "AI",
       "source": "Hacker News",
-      "published_at": "2026-11-26T07:15:34+09:00",
-      "title": "베어메탈 환경에서 직접 실행되는 Qwen 운영체제",
-      "summary": "리눅스나 윈도우 없이 하드웨어와 KVM에서 Qwen3-0.6B를 직접 구동하는 독립형 x86-64 운영체제예요. 24,252바이트 크기의 커널을 갖추었으며 74~94ms 만에 콜드 부팅돼요. 디스크 없이 RAM 위에서 전체 시스템과 모델이 동작해요.",
-      "url": "https://github.com/alesha-pro/llm.asm/tree/main/02-baremetal-os",
-      "score": 156,
-      "reactions": "포인트 156점",
-      "importance": 3
-    },
-    {
-      "id": "hn:50650892",
-      "section": "trend",
-      "topic": "개발 도구",
-      "source": "Hacker News",
-      "published_at": "2026-11-26T12:00:48+09:00",
-      "title": "Minipg: 단일 실행 파일 형태의 PostgreSQL",
-      "summary": "minipg는 서버 설정 없이 바로 쓸 수 있는 단일 실행 파일 형태의 PostgreSQL이에요. Docker Hub의 postgres:18-alpine 이미지를 내장해 h9 라이브러리로 호스트 하이퍼바이저에서 구동해요. 데이터와 설정이 담긴 .pgdb 디렉터리를 사용하며 명령이 필요할 때 서버가 켜지고 유휴 상태면 자동으로 멈춰요.",
-      "url": "https://progrium.github.io/minipg/",
-      "score": 139,
-      "reactions": "포인트 139점",
-      "importance": 3
-    },
-    {
-      "id": "hn:50651627",
-      "section": "trend",
-      "topic": "연구",
-      "source": "Hacker News",
-      "published_at": "2026-11-26T13:59:56+09:00",
-      "title": "준지수 시간 내의 무조건적 정수 인수분해",
-      "summary": "단일 고정 균일 고전 다중 테이프 튜링 기계에서 모든 정수의 완전 소인수분해를 계산하는 무조건적 제로 에러 라스베이거스 알고리즘이 구성되었어요. 이 논문과 Lean 4 형식화는 Gemini 4 기반의 수학적 발견 프레임워크인 Cogentic이 초기 프롬프트 외에 인간의 개입 없이 완전히 도출해 냈어요.",
-      "url": "https://github.com/google-research/google-research/tree/4a7bc8ab0bc770e71a259b7966c500496b99010a/cogentic_research_papers/integer_factorization",
-      "score": 44,
-      "reactions": "포인트 44점",
-      "importance": 3
-    },
-    {
-      "id": "gn:37870",
-      "section": "trend",
-      "topic": "AI",
-      "source": "GeekNews",
-      "published_at": "2026-11-26T10:50:02+09:00",
-      "title": "우리가 알던 기능 발견 방식의 종말",
-      "summary": "AI는 사용자가 원하는 결과를 말하면 필요한 기능을 골라 실행해 기능을 직접 찾을 필요를 줄여줘요. 소프트웨어를 조작하는 주체가 사람에서 AI로 옮겨가고 있어요. 에이전트가 API와 MCP로 다른 제품의 기능을 호출하면 사용자가 해당 앱을 열지 않아도 돼요.",
-      "url": "https://news.hada.io/topic?id=37870&utm_source=geeknews&utm_medium=rss&utm_campaign=news",
-      "score": 0,
-      "reactions": "",
+      "published_at": "2026-11-26T15:32:48+09:00",
+      "title": "Moat: OpenRouter 대체 서비스",
+      "summary": "MOAT는 AI 토큰의 코스트코예요. 월 $5를 지불하면 100개 이상의 최고 품질 오픈 모델을 가장 저렴한 도매 가격으로 이용할 수 있어요. 별도의 사용량 제한은 없어요.",
+      "url": "https://commandcode.ai/moat",
+      "score": 73,
+      "reactions": "포인트 73점",
       "importance": 3
     }
   ],
   "study": {
     "slug": "formal-verification",
     "title": "형식 검증",
-    "summary": "형식 검증은 수학적 모델을 사용해 시스템이 사양에 맞게 동작하는지 엄밀하게 증명하거나 반증하는 기법이에요.",
+    "summary": "형식 검증은 수학적 방법을 활용해 시스템이 명세대로 정확히 동작하는지 증명하거나 반증하는 기법이에요.",
     "read_minutes": 2,
     "points": [
-      "수학적 기법을 사용해 하드웨어와 소프트웨어의 정확성을 증명해요.",
-      "CompCert 컴파일러나 seL4 커널 등 고신뢰성 시스템에 쓰여요.",
-      "보안 평가 기준인 공통평가기준에서 최고 보증 수준(EAL7)을 달성해요."
+      "수학적 모델을 바탕으로 시스템의 정확성을 증명해요.",
+      "보안 평가 기준인 공통평가기준 프레임워크에서 최고 수준을 달성해요.",
+      "CompCert 컴파일러나 seL4 커널 검증 등에 널리 활용돼요."
     ],
     "sections": [
       {
-        "heading": "형식 검증이란 무엇인가요",
+        "heading": "형식 검증이란 무엇인가요?",
         "paragraphs": [
-          "형식 검증은 하드웨어나 소프트웨어 시스템이 정해진 사양을 올바르게 충족하는지 수학적인 기법으로 증명하거나 반증하는 절차를 뜻해요. 시스템이 의도한 명세대로 정확하게 동작함을 확증하는 것이 주된 목적이에요. 이는 전자 설계 자동화 분야에서 분석과 검증을 담당하는 핵심적인 축이며, 소프트웨어의 신뢰성을 입증하는 대표적인 접근법으로 꼽혀요. 보안 평가 기준인 공통평가기준 프레임워크에서도 가장 높은 평가 보증 수준인 EAL7을 달성하기 위해 공식 검증 절차가 쓰여요."
+          "하드웨어나 소프트웨어 시스템이 특정 명세나 속성에 맞추어 올바르게 동작하는지를 수학적인 방법으로 증명하거나 반증하는 과정을 말해요. 전자 설계 자동화 분야에서 중요한 분석 및 검증 차원을 담당하며, 소프트웨어가 의도대로 작동하는지 점검하는 대표적인 접근법 중 하나예요. 컴퓨터 보안 평가 프레임워크인 공통평가기준에서 가장 높은 수준의 평가 보증인 EAL7을 달성할 수 있게 해줘요."
         ]
       },
       {
-        "heading": "어디에 주로 활용되나요",
+        "heading": "어디에 적용할 수 있나요?",
         "paragraphs": [
-          "이 검증 방식은 보안과 안정성이 필수적인 다양한 시스템에 광범위하게 적용돼요. 암호화 프로토콜이나 조합 회로, 내부 메모리를 갖춘 디지털 회로의 동작을 확인하는 데 유용하게 쓰여요. 또한 프로그래밍 언어로 작성된 소프트웨어 소스 코드의 오류 유무를 가려낼 때도 널리 활용돼요. 대표적인 적용 사례로는 수학적으로 정확성이 입증된 CompCert C 컴파일러와 높은 보증 수준을 자랑하는 seL4 운영체제 커널이 있어요. 최근 연구 현장에서는 인공지능이 증명한 복잡도 이론이나 수학적 주장의 정확성을 뒷받침하기 위해 린(Lean)과 같은 검증 도구의 인증서를 활용하기도 해요."
+          "암호화 프로토콜이나 조합 회로, 내부 메모리가 포함된 디지털 회로의 정확성을 증명할 때 쓰여요. 또한 프로그래밍 언어의 소스 코드로 작성된 소프트웨어 검증에도 널리 쓰여요. 대표적인 적용 사례로는 검증된 C 컴파일러인 CompCert와 높은 수준의 보안 보증을 제공하는 운영 체제 커널인 seL4가 있어요."
         ]
       },
       {
-        "heading": "어떤 방식으로 모델링하나요",
+        "heading": "어떻게 검증을 진행하나요?",
         "paragraphs": [
-          "시스템 검증은 해당 대상을 설명하는 수학적 모델을 구축하고 공식적인 증거를 도출하는 과정을 거쳐요. 이를 위해 유한 상태 기계나 레이블이 부여된 전환 시스템, 페트리 넷과 같은 수학적 개념들을 사용해요. 이 밖에도 혼 절, 벡터 추가 시스템, 시간 제한 오토마타, 하이브리드 오토마타, 프로세스 대수 등이 시스템의 성질을 표현하는 도구로 쓰여요. 프로그래밍 언어 자체의 정확성을 다룰 때는 연산 의미론, 표시 의미론, 공리적 의미론이나 호어 논리와 같은 형식 의미론적 체계를 바탕으로 삼아 검증을 이어가요."
+          "검증하려는 시스템을 수학적 모델로 표현하고, 그 모델에 대한 공식적인 증거가 존재하는지 확인하는 방식으로 진행돼요. 이때 유한 상태 기계, 레이블이 있는 전환 시스템, 혼 절, 페트리 넷, 벡터 추가 시스템, 시간 제한 오토마타, 하이브리드 오토마타, 프로세스 대수 같은 다양한 수학적 개체가 모델링에 사용돼요. 아울러 연산 의미론, 표시 의미론, 공리적 의미론, 호어 논리 같은 프로그래밍 언어의 형식 의미론도 모델링에 활용돼요."
         ]
       }
     ],
@@ -201,8 +201,8 @@
         "url": "https://ko.wikipedia.org/wiki/%ED%98%95%EC%8B%9D_%EA%B2%80%EC%A6%9D"
       },
       {
-        "title": "AI 연구 기관들의 연이은 수학 난제 증명과 계산 복잡도 이론의 급변",
-        "url": "https://scottaaronson.blog/?p=10379"
+        "title": "일반화된 리만 가설에 대한 짧은 Lean 4 증명",
+        "url": "https://github.com/lsernau/grh-lean"
       }
     ],
     "wikipedia": {
