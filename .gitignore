@@ -14,6 +14,7 @@ __pycache__/
 # 도구별 로컬 파일
 .claude/settings.local.json
 .wrangler/
+.playwright-mcp/
 
 # OS가 만드는 파일
 .DS_Store
