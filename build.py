@@ -12,6 +12,7 @@ import os
 import re
 import shutil
 import sys
+import time
 from collections import Counter
 from datetime import date, datetime
 from email.utils import format_datetime
@@ -238,5 +239,7 @@ if __name__ == "__main__":
     production = "--production" in args
     paths = [a for a in args if a != "--production"]
     target = Path(paths[0]) if paths else ROOT / "site"
+    start = time.monotonic()
     build(target, site_url=site_url_from_env(production), ga_id=ga_id_from_env())
-    print(f"사이트를 만들었어요: {target}")
+    pages = sum(1 for _ in target.rglob("*.html"))
+    print(f"사이트를 만들었어요: {target} (페이지 {pages}개, {time.monotonic() - start:.1f}초)")

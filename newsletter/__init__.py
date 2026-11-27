@@ -1,7 +1,10 @@
 """IT 뉴스레터 발행 작업: 소식 수집 → 거르기 → 분류·요약 → 호 파일 저장."""
 from __future__ import annotations
 
+import time
 from collections import Counter
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 
@@ -64,7 +67,19 @@ class RunLog:
     source_counts: dict[str, int] = field(default_factory=dict)
     errors: list[str] = field(default_factory=list)
     excluded: Counter = field(default_factory=Counter)
+    timings: dict[str, float] = field(default_factory=dict)  # 단계 이름 → 초
+    source_seconds: dict[str, float] = field(default_factory=dict)
+    llm_calls: list[dict] = field(default_factory=list)  # 호출마다 대상·시간·토큰 수
 
     def add(self, code: str, target: str, detail: str) -> None:
         self.errors.append(f"{code} {target} {detail}")
         self.excluded[code] += 1
+
+    @contextmanager
+    def timed(self, stage: str) -> Iterator[None]:
+        """블록이 걸린 시간을 stage에 더한다. 예외가 나도 기록한다."""
+        start = time.monotonic()
+        try:
+            yield
+        finally:
+            self.timings[stage] = self.timings.get(stage, 0.0) + time.monotonic() - start
