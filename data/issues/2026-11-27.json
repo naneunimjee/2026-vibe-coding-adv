@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "number": 2,
+  "date": "2026-11-27",
+  "collected_at": "2026-11-27T13:43:29+09:00",
+  "headline": "오늘은 AI 소식이 가장 많았어요",
+  "highlight": "AI",
+  "summary": "트렌드 7건, 이슈 4건, 오늘의 공부 1개를 골랐어요.",
+  "read_minutes": 5,
+  "items": [
+    {
+      "id": "hn:50662322",
+      "section": "issue",
+      "topic": "정책",
+      "source": "Hacker News",
+      "published_at": "2026-11-27T12:11:41+09:00",
+      "title": "구글, 개인 안드로이드 개발자의 전화번호와 주소 공개 예정",
+      "summary": "구글 플레이는 개발자들에게 2027년 2월 1일까지 판매자 여부를 선언하도록 요구했어요. 2027년 3월 1일부터 판매자로 등록한 개인 개발자 계정의 전화번호와 주소가 사용자에게 공개돼요. 기한 내에 상태를 선언하지 않거나 허위로 신고할 경우 앱 삭제나 계정 정지 등의 제재를 받을 수 있어요.",
+      "url": "https://support.google.com/googleplay/android-developer/answer/17594752?hl=en",
+      "score": 54,
+      "reactions": "포인트 54점",
+      "importance": 4
+    },
+    {
+      "id": "hn:50661218",
+      "section": "trend",
+      "topic": "AI",
+      "source": "Hacker News",
+      "published_at": "2026-11-27T09:03:18+09:00",
+      "title": "Gemini 실험을 위해 딥마인드 컴퓨팅 자원 일부를 제어하는 AI 에이전트",
+      "summary": "Google Deepmind는 다음 Gemini 모델 실험을 위해 AI 에이전트가 컴퓨팅 일부를 직접 제어하도록 허용했어요. 안전 조치로 에이전트의 내부 사고 흐름에는 보상을 주지 않아 행동 전 의도를 자연어로 검토할 수 있게 했어요. 다만 연구진은 현재 AI가 물리적 과정을 정확히 이해하지는 못하는 한계가 있다고 짚었어요.",
+      "url": "https://the-decoder.com/ai-agents-now-control-part-of-deepminds-compute-for-gemini-experiments-but-recursive-self-improvement-remains-distant/",
+      "score": 43,
+      "reactions": "포인트 43점",
+      "importance": 4
+    },
+    {
+      "id": "gn:37927",
+      "section": "trend",
+      "topic": "개발 도구",
+      "source": "GeekNews",
+      "published_at": "2026-11-27T09:30:02+09:00",
+      "title": "tidy - Prettier 스타일로 코드를 정리하는 Rust 기반 고속 포매터",
+      "summary": "tidy는 Prettier 스타일을 빠르게 적용하며 Node.js 없이 단일 실행 파일로 동작하는 포매터예요. 웹 개발 언어와 다양한 설정 파일뿐만 아니라 파일 내 포함된 다른 언어까지 별도 플러그인 없이 정리해요. 자체 벤치마크에서는 12,071개 파일 검사에 280ms가 걸려 Prettier보다 약 66배 빠른 속도를 보였어요.",
+      "url": "https://news.hada.io/topic?id=37927&utm_source=geeknews&utm_medium=rss&utm_campaign=news",
+      "score": 0,
+      "reactions": "",
+      "importance": 4
+    },
+    {
+      "id": "gn:37919",
+      "section": "issue",
+      "topic": "정책",
+      "source": "GeekNews",
+      "published_at": "2026-11-27T06:39:40+09:00",
+      "title": "Google, AI 에이전트의 Workspace 접근에 자사 MCP 의무화… 공개 Gmail MCP는 메일 발송 불가",
+      "summary": "2027년 2월 1일부터 AI 에이전트의 Google Workspace 데이터 접근에 공식 MCP 서버나 Workspace CLI 사용이 의무화돼요. 공개 Gmail MCP 서버는 메일 발송과 답장 등이 파트너 전용으로 제한돼요. 또한 접근 과정에서 만든 임베딩이나 메모리 인덱스는 30일을 넘겨 보관할 수 없어요.",
+      "url": "https://news.hada.io/topic?id=37919&utm_source=geeknews&utm_medium=rss&utm_campaign=news",
+      "score": 0,
+      "reactions": "",
+      "importance": 4
+    },
+    {
+      "id": "hn:50660180",
+      "section": "trend",
+      "topic": "개발 도구",
+      "source": "Hacker News",
+      "published_at": "2026-11-27T06:47:45+09:00",
+      "title": "AI 덕분에 다시 즐거워진 셀프 호스팅",
+      "summary": "작성자는 AI 코딩 에이전트를 도입해 인프라 설정 변경과 자동화에 드는 수고를 크게 줄였다고 밝혔어요. 그 덕분에 NixOS 도입이나 전용 도구 개발처럼 예전에는 부담스럽던 실험을 쉽게 시도할 수 있게 되었어요. 결국 AI가 관리 과정의 번거로움을 덜어주어 셀프 호스팅을 다시 즐기게 되었다고 해요.",
+      "url": "https://janlukas.blog/posts/ai-self-hosting",
+      "score": 437,
+      "reactions": "포인트 437점",
+      "importance": 3
+    },
+    {
+      "id": "hn:50657265",
+      "section": "trend",
+      "topic": "AI",
+      "source": "Hacker News",
+      "published_at": "2026-11-27T02:11:29+09:00",
+      "title": "AMD 그래픽 카드를 위한 llama.cpp 포크",
+      "summary": "llama-cpp-rdna-boosts는 AMD 그래픽 카드를 위해 llama.cpp에 최소한의 변경 사항을 적용한 포크예요. 작성자 환경에서 토큰 생성 속도는 초당 35에서 55토큰으로, 프리필 속도는 초당 700에서 1300토큰으로 증가했어요.",
+      "url": "https://devnull.land/amd-specific-llama-cpp",
+      "score": 309,
+      "reactions": "포인트 309점",
+      "importance": 3
+    },
+    {
+      "id": "hn:50657645",
+      "section": "issue",
+      "topic": "보안",
+      "source": "Hacker News",
+      "published_at": "2026-11-27T02:47:45+09:00",
+      "title": "'랜섬웨어헬프' CTO, 통신사기 혐의로 기소",
+      "summary": "랜섬웨어헬프의 공동 창립자이자 최고기술책임자인 Juan Ricardo Palacio Escobar가 통신사기 혐의로 기소되었어요. 회사는 첨단 암호화 도구로 복구한다고 홍보했으나 실제로는 공격자에게 복호화 키를 구매해 피해자에게 웃돈을 얹어 청구했어요. 이는 피해 기업과 랜섬웨어 조직을 가장한 FBI의 함정 수사를 통해 드러났어요.",
+      "url": "https://krebsonsecurity.com/2026/11/cto-of-ransomwarehelp-indicted-for-wire-fraud/",
+      "score": 240,
+      "reactions": "포인트 240점",
+      "importance": 3
+    },
+    {
+      "id": "hn:50658632",
+      "section": "trend",
+      "topic": "개발 도구",
+      "source": "Hacker News",
+      "published_at": "2026-11-27T04:18:09+09:00",
+      "title": "Rust 기반 VoIP 통신 라이브러리 Rvoip",
+      "summary": "rvoip는 외부 SIP 프록시나 미디어 서버 없이 단독으로 동작하는 통신 애플리케이션 구축용 Rust 라이브러리예요. SIP, RTP, WebRTC, 음성 AI 에이전트 등을 하나의 호출 모델로 공유해 처리해요. 현재 SIP 텔레포니 영역은 베타 검증 단계이며, WebRTC와 음성 AI 등은 개발자 프리뷰 상태로 제공돼요.",
+      "url": "https://github.com/eisenzopf/rvoip",
+      "score": 105,
+      "reactions": "포인트 105점",
+      "importance": 3
+    },
+    {
+      "id": "hn:50660273",
+      "section": "issue",
+      "topic": "AI",
+      "source": "Hacker News",
+      "published_at": "2026-11-27T06:59:19+09:00",
+      "title": "Novita와 StreamLake 등 여러 AI 제공업체의 바이트댄스 Ark 래퍼 의혹",
+      "summary": "Novita와 StreamLake 등의 요청에서 바이트댄스 클라우드 다운로드와 고유 ID 형식 등 Ark의 흔적이 발견되었어요. 일부 업체는 요청을 직접 처리하지 않고 타사를 거쳐 전달한 것으로 나타났어요. 가격 할인 혜택 등을 이유로 여러 모델 요청이 바이트댄스 인프라로 라우팅되고 있다는 분석이 제기되었어요.",
+      "url": "https://kendell.dev/blog/arkwrapper/",
+      "score": 64,
+      "reactions": "포인트 64점",
+      "importance": 3
+    },
+    {
+      "id": "hn:50657070",
+      "section": "trend",
+      "topic": "개발 도구",
+      "source": "Hacker News",
+      "published_at": "2026-11-27T01:51:38+09:00",
+      "title": "SimDrop: macOS Finder 사이드바에 실행 중인 iOS 시뮬레이터를 표시하는 도구",
+      "summary": "SimDrop은 실행 중인 iOS 시뮬레이터를 macOS Finder 사이드바에 표시해 파일을 쉽게 주고받을 수 있게 돕는 도구예요. 시뮬레이터가 부팅되면 자동으로 나타나며 사진 보관함과 다운로드 폴더를 다룰 수 있어요. macOS 15 이상을 지원하며 Homebrew Cask나 GitHub Releases에서 설치할 수 있어요.",
+      "url": "https://github.com/rxliuli/sim-drop",
+      "score": 41,
+      "reactions": "포인트 41점",
+      "importance": 3
+    },
+    {
+      "id": "hn:50658498",
+      "section": "trend",
+      "topic": "AI",
+      "source": "Hacker News",
+      "published_at": "2026-11-27T04:04:50+09:00",
+      "title": "머신러닝 불확실성에 대한 입문",
+      "summary": "머신러닝에서 불확실성은 데이터 추가로 줄일 수 있는 인식적 불확실성과 관측 불가능성에서 비롯되는 우연적 불확실성으로 구분돼요. 단일 점 추정은 위험한 극단값을 가리기 쉬우므로 베이지안 추론이나 컨포멀 예측 등을 활용해 신뢰 가능한 범위를 다뤄야 해요. 결국 적절한 모델 가정과 손실 함수를 결합해 의사결정에 유용한 불확실성을 도출하는 것이 중요해요.",
+      "url": "https://chrhenning.com/blog/2026/introduction-to-uncertainty/",
+      "score": 36,
+      "reactions": "포인트 36점",
+      "importance": 3
+    }
+  ],
+  "study": {
+    "slug": "session-initiation-protocol",
+    "title": "세션 개시 프로토콜",
+    "summary": "멀티미디어 통신 세션의 생성, 수정, 종료를 제어하는 응용 계층의 텍스트 기반 시그널링 프로토콜이에요.",
+    "read_minutes": 2,
+    "points": [
+      "멀티미디어 통신 세션을 생성하고 수정 및 종료하는 시그널링 규약이에요.",
+      "HTTP 및 SMTP와 유사한 텍스트 기반으로 구현과 확장이 쉬워요.",
+      "SDP로 미디어 정보를 기술하고 보통 RTP로 데이터를 전송해요."
+    ],
+    "sections": [
+      {
+        "heading": "세션 개시 프로토콜이란 무엇인가요?",
+        "paragraphs": [
+          "세션 개시 프로토콜은 IETF에서 규정한 응용 계층 시그널링 프로토콜이에요. 음성이나 영상 통화, 인터넷 콘퍼런스, 메신저 등 지능형 단말들이 통신 세션을 생성하고 수정하거나 종료할 때 사용해요. 1996년 헤닝 슐츠린과 마크 핸들리가 처음 고안했고 이후 RFC 3261 규격으로 정리되었어요. 2000년 11월에는 3GPP의 시그널링 프로토콜과 IMS 구조 규격으로 채택되기도 했어요.",
+          "이 프로토콜은 TCP와 UDP 환경에서 모두 동작하며 요청과 응답 구조를 따라요. 전자우편 주소와 비슷한 형식의 주소를 사용하여 IP 주소에 종속되지 않고 사용자를 식별해요. 또한 HTTP와 SMTP의 텍스트 방식을 많이 차용하여 구현하기 편하고 다른 규약과 결합하기 쉬운 유연성을 지녀요."
+        ]
+      },
+      {
+        "heading": "어떤 구성 요소와 요청 방식을 쓰나요?",
+        "paragraphs": [
+          "네트워크 내 통신 주체는 사용자 에이전트라고 불리며 요청을 보내는 클라이언트와 응답을 처리하는 서버 역할을 모두 맡아요. 중간에서 요청을 목적지로 전달하는 프록시 서버와 주소 연결 정보를 관리하는 등록 서버도 함께 쓰여요. 이러한 논리적 역할들은 하나의 프로그램 안에서 함께 구현되기도 해요.",
+          "통신을 시작할 때는 세션 설정을 알리는 인바이트 요청을 보내고 이에 대한 최종 응답을 확인하는 확인 요청을 보내요. 대화에 연결된 세션을 마무리할 때는 바이 요청을 전송하며 이때는 확인 요청을 따로 보내지 않아요."
+        ]
+      },
+      {
+        "heading": "미디어 전송과 세션 기술은 어떻게 다루나요?",
+        "paragraphs": [
+          "세션에 필요한 미디어 정보와 전송 주소는 보통 세션 기술 프로토콜로 표현해요. 세션 기술 프로토콜은 제안과 응답 모델을 거치며 양측이 통신에 쓸 코덱과 스트림 매개변수를 맞추는 역할을 담당해요.",
+          "실시간 음성과 영상 데이터를 종단 간에 실어 나르는 작업에는 흔히 실시간 전송 프로토콜이 쓰여요. 다만 세션 개시 프로토콜의 기본 동작이 해당 전송 프로토콜의 사용을 필수로 강제하지는 않아서 유연하게 통신 환경을 구성할 수 있어요."
+        ]
+      }
+    ],
+    "references": [
+      {
+        "title": "위키백과: 세션 개시 프로토콜",
+        "url": "https://ko.wikipedia.org/wiki/%EC%84%B8%EC%85%98_%EA%B0%9C%EC%8B%9C_%ED%94%84%EB%A1%9C%ED%86%A0%EC%BD%9C"
+      },
+      {
+        "title": "Rust 기반 VoIP 통신 라이브러리 Rvoip",
+        "url": "https://github.com/eisenzopf/rvoip"
+      }
+    ],
+    "wikipedia": {
+      "lang": "ko",
+      "title": "세션 개시 프로토콜",
+      "url": "https://ko.wikipedia.org/wiki/%EC%84%B8%EC%85%98_%EA%B0%9C%EC%8B%9C_%ED%94%84%EB%A1%9C%ED%86%A0%EC%BD%9C"
+    }
+  }
+}
