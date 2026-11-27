@@ -33,7 +33,18 @@ class Response:
     text: str
 
 
+@dataclass
+class HostStats:
+    """호스트별 성능 기록. 네트워크 시간과 규칙 때문에 기다린 시간을 나눠 센다."""
+
+    requests: int = 0
+    retries: int = 0
+    seconds: float = 0.0  # 요청을 보내고 응답을 다 받기까지
+    waited: float = 0.0  # 호스트 간격(HOST_MIN_INTERVAL)과 재시도 대기
+
+
 _last_request_at: dict[str, float] = {}
+stats: dict[str, HostStats] = {}
 
 
 def get(url: str, accept: str = "*/*", headers: dict[str, str] | None = None) -> Response:
@@ -44,6 +55,9 @@ def get(url: str, accept: str = "*/*", headers: dict[str, str] | None = None) ->
     try:
         return _request(url, host, request_headers)
     except FetchError:
+        s = stats.setdefault(host, HostStats())
+        s.retries += 1
+        s.waited += config.RETRY_DELAY
         time.sleep(config.RETRY_DELAY)
         return _request(url, host, request_headers)
 
@@ -57,7 +71,10 @@ def get_json(url: str, headers: dict[str, str] | None = None) -> Any:
 
 
 def _request(url: str, host: str, headers: dict[str, str]) -> Response:
-    _wait_for_host(host)
+    s = stats.setdefault(host, HostStats())
+    s.waited += _wait_for_host(host)
+    s.requests += 1
+    start = time.monotonic()
     request = urllib.request.Request(url, headers=headers)
     try:
         with urllib.request.urlopen(request, timeout=config.HTTP_TIMEOUT) as resp:
@@ -77,15 +94,19 @@ def _request(url: str, host: str, headers: dict[str, str]) -> Response:
         raise FetchError(f"{type(e).__name__}: {url}") from e
     finally:
         _last_request_at[host] = time.monotonic()
+        s.seconds += _last_request_at[host] - start
 
 
-def _wait_for_host(host: str) -> None:
+def _wait_for_host(host: str) -> float:
+    """같은 호스트의 직전 요청과 간격을 맞춘다. 기다린 초를 돌려준다."""
     last = _last_request_at.get(host)
     if last is None:
-        return
+        return 0.0
     remaining = _min_interval(host) - (time.monotonic() - last)
     if remaining > 0:
         time.sleep(remaining)
+        return remaining
+    return 0.0
 
 
 def _min_interval(host: str) -> float:

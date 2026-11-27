@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import time
 
 from google import genai
 from google.genai import errors, types
@@ -29,6 +30,7 @@ def init(api_key: str) -> None:
 
 def call_json(system: str, user: str, schema: dict, effort: str, log: RunLog, target: str) -> dict | None:
     """구조화 출력으로 dict를 받는다. 거절·형식 오류는 기록하고 None. API 오류는 LlmError."""
+    start = time.monotonic()
     try:
         resp = _client.models.generate_content(
             model=config.MODEL,
@@ -42,7 +44,9 @@ def call_json(system: str, user: str, schema: dict, effort: str, log: RunLog, ta
             ),
         )
     except errors.APIError as e:
+        _record(log, target, effort, start, None)
         raise LlmError(f"{e.code} {e.status}") from e
+    _record(log, target, effort, start, resp)
 
     feedback = resp.prompt_feedback
     finish = resp.candidates[0].finish_reason if resp.candidates else None
@@ -58,3 +62,21 @@ def call_json(system: str, user: str, schema: dict, effort: str, log: RunLog, ta
         log.add("LLM_INVALID_OUTPUT", target, f"finish={finish_name}")
         return None
     return data
+
+
+def _record(log: RunLog, target: str, effort: str, start: float, resp) -> None:
+    """호출 시간과 토큰 수를 남긴다. resp가 None이면 API 오류로 끝난 호출 (SDK 재시도 시간 포함)."""
+    usage = getattr(resp, "usage_metadata", None)
+
+    def tokens(name: str) -> int:
+        return getattr(usage, name, None) or 0
+
+    log.llm_calls.append({
+        "target": target,
+        "effort": effort,
+        "seconds": time.monotonic() - start,
+        "ok": resp is not None,
+        "in": tokens("prompt_token_count"),
+        "out": tokens("candidates_token_count"),
+        "thought": tokens("thoughts_token_count"),
+    })
